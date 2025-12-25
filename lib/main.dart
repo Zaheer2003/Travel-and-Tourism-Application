@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:provider/provider.dart';
-import 'providers/theme_provider.dart';
-import 'theme/app_theme.dart';
-import 'screens/main_screen.dart';
-import 'screens/login_screen.dart';
-import 'services/auth_service.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:travel_tourism/core/theme/app_theme.dart';
+import 'package:travel_tourism/core/theme/theme_provider.dart';
+import 'features/auth/view_models/auth_providers.dart';
+import 'features/home/views/main_screen.dart';
+import 'features/auth/views/login_screen.dart';
 import 'firebase_options.dart';
 
 void main() async {
@@ -17,53 +16,76 @@ void main() async {
   );
   
   runApp(
-    ChangeNotifierProvider(
-      create: (_) => ThemeProvider(),
-      child: const TravelApp(),
+    const ProviderScope(
+      child: TravelApp(),
     ),
   );
 }
 
-class TravelApp extends StatelessWidget {
+class TravelApp extends ConsumerWidget {
   const TravelApp({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final themeProvider = Provider.of<ThemeProvider>(context);
+  Widget build(BuildContext context, WidgetRef ref) {
+    final isDarkMode = ref.watch(themeNotifierProvider);
     
     return MaterialApp(
       title: 'Travel & Tourism',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
-      themeMode: themeProvider.themeMode,
+      themeMode: isDarkMode ? ThemeMode.dark : ThemeMode.light,
       home: const AuthWrapper(),
     );
   }
 }
 
-class AuthWrapper extends StatelessWidget {
+class AuthWrapper extends ConsumerWidget {
   const AuthWrapper({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final AuthService auth = AuthService();
+  Widget build(BuildContext context, WidgetRef ref) {
+    final authState = ref.watch(authStateChangesProvider);
     
-    // For now, if Firebase is not init, we might return LoginScreen or Main based on demo needs.
-    // Assuming Firebase will be set up:
-    return StreamBuilder<User?>(
-      stream: auth.user,
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.active) {
-          final User? user = snapshot.data;
-          return user == null ? const LoginScreen() : MainScreen();
+    return authState.when(
+      data: (user) {
+        if (user != null) {
+          return MainScreen();
         }
-        return const Scaffold(
-          body: Center(
-            child: CircularProgressIndicator(),
-          ),
-        );
+        return const LoginScreen();
       },
+      loading: () => const Scaffold(
+        body: Center(
+          child: CircularProgressIndicator(),
+        ),
+      ),
+      error: (error, stack) => Scaffold(
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(Icons.error_outline, size: 48, color: Colors.red),
+              const SizedBox(height: 16),
+              Text('Error: $error'),
+              const SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: () {
+                  // Retry by invalidating the provider
+                  ref.invalidate(authStateChangesProvider);
+                },
+                child: const Text('Retry'),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }
+
+
+
+
+
+
+
