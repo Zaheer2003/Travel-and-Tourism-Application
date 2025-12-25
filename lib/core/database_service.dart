@@ -2,11 +2,60 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:travel_tourism/features/destinations/models/destination.dart';
 import 'package:travel_tourism/features/hotels/models/hotel.dart';
 
+class TrainRoute {
+  final String id;
+  final String name;
+  final String from;
+  final String to;
+  final String imageUrl;
+  final String description;
+  final List<String> schedule;
+  final String bookingUrl;
+
+  TrainRoute({
+    required this.id,
+    required this.name,
+    required this.from,
+    required this.to,
+    required this.imageUrl,
+    required this.description,
+    required this.schedule,
+    required this.bookingUrl,
+  });
+
+  Map<String, dynamic> toMap() {
+    return {
+      'name': name,
+      'from': from,
+      'to': to,
+      'imageUrl': imageUrl,
+      'description': description,
+      'schedule': schedule,
+      'bookingUrl': bookingUrl,
+    };
+  }
+
+  factory TrainRoute.fromFirestore(Map<String, dynamic> data, String id) {
+    return TrainRoute(
+      id: id,
+      name: data['name'] ?? '',
+      from: data['from'] ?? '',
+      to: data['to'] ?? '',
+      imageUrl: data['imageUrl'] ?? '',
+      description: data['description'] ?? '',
+      schedule: List<String>.from(data['schedule'] ?? []),
+      bookingUrl: data['bookingUrl'] ?? '',
+    );
+  }
+}
+
 class DatabaseService {
   final CollectionReference destinationCollection = 
       FirebaseFirestore.instance.collection('destinations');
   final CollectionReference hotelCollection = 
       FirebaseFirestore.instance.collection('hotels');
+  final CollectionReference trainCollection = 
+      FirebaseFirestore.instance.collection('train_routes');
 
   // Get destinations stream
   Stream<List<Destination>> get destinations {
@@ -32,20 +81,29 @@ class DatabaseService {
     }).toList();
   }
 
+  // Get train routes stream
+  Stream<List<TrainRoute>> get trainRoutes {
+    return trainCollection.snapshots().map(_trainListFromSnapshot);
+  }
+
+  List<TrainRoute> _trainListFromSnapshot(QuerySnapshot snapshot) {
+    return snapshot.docs.map((doc) {
+      return TrainRoute.fromFirestore(doc.data() as Map<String, dynamic>, doc.id);
+    }).toList();
+  }
+
   bool _isUploading = false;
 
-  // Combined upload for destinations and hotels
+  // Combined upload for destinations, hotels and trains
   Future<void> uploadInitialData() async {
     if (_isUploading) return;
     _isUploading = true;
     try {
       await uploadDestinations();
       await uploadHotels();
+      await uploadTrainRoutes();
     } catch (e) {
       print('⚠️ Database initialization warning: $e');
-      if (e.toString().contains('permission-denied')) {
-        print('💡 Tip: Please check your Firebase Firestore rules. You might need to allow read/write access for development.');
-      }
     } finally {
       _isUploading = false;
     }
@@ -55,7 +113,14 @@ class DatabaseService {
   Future<void> uploadDestinations() async {
     try {
       final snapshot = await destinationCollection.limit(1).get();
-      if (snapshot.docs.isNotEmpty) return;
+      if (snapshot.docs.isNotEmpty) {
+        // Check if we need to add NEW ones
+        if (snapshot.docs.length < 10) {
+           // Continue to upload more if needed, but for simplicity we'll skip if exists
+           return;
+        }
+        return;
+      }
 
       print('No destinations found. Starting upload...');
       List<Destination> dummyData = [
@@ -85,75 +150,67 @@ class DatabaseService {
         ),
         Destination(
           id: '',
-          name: 'Mirissa',
-          location: 'Southern Province',
-          imageUrl: 'assets/images/mirissa.jpg',
-          description: 'Beautiful tropical beach known for whale watching and surfing.',
-          price: 140,
-          rating: 4.7,
-          categories: ['Beach', 'Surfing'],
-          lat: 5.9483,
-          lng: 80.4716,
-        ),
-        Destination(
-          id: '',
-          name: 'Nuwara Eliya',
+          name: 'Kandy',
           location: 'Central Province',
-          imageUrl: 'https://images.unsplash.com/photo-1625902347781-678a3c480bd5?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=100',
-          description: 'Colonial-era hill station known as "Little England" surrounded by tea.',
-          price: 180,
-          rating: 4.6,
-          categories: ['Hill Station', 'Tea'],
-          lat: 6.9497,
-          lng: 80.7891,
-        ),
-        Destination(
-          id: '',
-          name: 'Yala National Park',
-          location: 'Southern Province',
-          imageUrl: 'https://images.unsplash.com/photo-1541018613454-00ed6449179d?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=100',
-          description: 'Famous for its high density of leopards and diverse wildlife.',
-          price: 100,
-          rating: 4.8,
-          categories: ['Wildlife', 'Safari'],
-          lat: 6.3681,
-          lng: 81.5173,
-        ),
-        Destination(
-          id: '',
-          name: 'Galle Fort',
-          location: 'Southern Province',
-          imageUrl: 'https://images.unsplash.com/photo-1578581650394-672905955677?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=100',
-          description: 'Historical fortification built by the Portuguese and fortified by the Dutch.',
-          price: 90,
+          imageUrl: 'https://images.unsplash.com/photo-1546708973-b339540b5162?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=100',
+          description: 'The cultural capital of Sri Lanka, home to the Temple of the Tooth Relic.',
+          price: 130,
           rating: 4.7,
-          categories: ['History', 'Architecture'],
-          lat: 6.0272,
-          lng: 80.2173,
+          categories: ['Culture', 'City'],
+          lat: 7.2906,
+          lng: 80.6337,
+        ),
+        Destination(
+          id: '',
+          name: 'Adam\'s Peak',
+          location: 'Sabaragamuwa',
+          imageUrl: 'https://images.unsplash.com/photo-1621601730030-22c7f4802c61?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=100',
+          description: 'A sacred mountain popular for its sunrise climbs and amazing views.',
+          price: 80,
+          rating: 4.9,
+          categories: ['Hiking', 'Spiritual'],
+          lat: 6.8096,
+          lng: 80.5000,
+        ),
+        Destination(
+          id: '',
+          name: 'Trincomalee',
+          location: 'Eastern Province',
+          imageUrl: 'https://images.unsplash.com/photo-1588001646270-e4b52ffda2e3?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=100',
+          description: 'Deep natural harbor and pristine white sandy beaches.',
+          price: 150,
+          rating: 4.6,
+          categories: ['Beach', 'Nature'],
+          lat: 8.5711,
+          lng: 81.2335,
+        ),
+        Destination(
+          id: '',
+          name: 'Polonnaruwa',
+          location: 'North Central',
+          imageUrl: 'https://images.unsplash.com/photo-1627916607164-7b20241db935?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=100',
+          description: 'The medieval capital of Sri Lanka with well-preserved ruins.',
+          price: 110,
+          rating: 4.7,
+          categories: ['History', 'Culture'],
+          lat: 7.9403,
+          lng: 81.0188,
         ),
       ];
 
       for (var dest in dummyData) {
         await destinationCollection.add(dest.toMap());
       }
-      print('✅ Destinations uploaded successfully!');
     } catch (e) {
-      if (e.toString().contains('permission-denied')) {
-        rethrow;
-      }
-      print('❌ Error uploading destinations: $e');
+      print('Error: $e');
     }
   }
 
-  // Add dummy hotels
   Future<void> uploadHotels() async {
     try {
       final snapshot = await hotelCollection.limit(1).get();
-      if (snapshot.docs.isNotEmpty) {
-        return;
-      }
+      if (snapshot.docs.isNotEmpty) return;
 
-      print('No hotels found. Starting upload...');
       List<Hotel> dummyHotels = [
         Hotel(
           id: '',
@@ -162,47 +219,82 @@ class DatabaseService {
           imageUrl: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=100',
           pricePerNight: 250,
           rating: 4.8,
-          amenities: ['Spa', 'Pool', 'Forest View', 'Gym'],
-          description: 'An architectural masterpiece unique to Sri Lanka, designed by Geoffrey Bawa.',
+          amenities: ['Spa', 'Pool', 'Forest View'],
+          description: 'Designed by Geoffrey Bawa, built into a rock face.',
         ),
         Hotel(
           id: '',
-          name: '98 Acres Resort & Spa',
-          location: 'Ella',
-          imageUrl: 'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=100',
-          pricePerNight: 320,
-          rating: 4.9,
-          amenities: ['Tea Plucking', 'Pool', 'Mountain View', 'Hiking'],
-          description: 'A beautiful luxury hotel standing on a 98-acre tea estate in Ella.',
-        ),
-        Hotel(
-          id: '',
-          name: 'Wild Coast Tented Lodge',
-          location: 'Yala',
-          imageUrl: 'https://images.unsplash.com/photo-1544124499-1836ba274293?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=100',
-          pricePerNight: 450,
+          name: 'Cinnamon Bentota Beach',
+          location: 'Bentota',
+          imageUrl: 'https://images.unsplash.com/photo-1571896349842-33c89424de4d?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=100',
+          pricePerNight: 280,
           rating: 4.7,
-          amenities: ['Safari', 'Luxury Tents', 'Pool', 'Gourmet Dining'],
-          description: 'Where the jungle meets the ocean. A unique safari experience in Yala.',
+          amenities: ['Private Beach', 'Water Sports', 'Pool'],
+          description: 'Ultimate river and sea-side resort at Bentota.',
+        ),
+        Hotel(
+          id: '',
+          name: 'The Fortress Resort',
+          location: 'Galle',
+          imageUrl: 'https://images.unsplash.com/photo-1540541338287-41700207dee6?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=100',
+          pricePerNight: 350,
+          rating: 4.9,
+          amenities: ['Ocean View', 'Ayurvedic Spa', 'Gourmet Dining'],
+          description: 'A luxurious boutique hotel inspired by the Galle Fort.',
         ),
       ];
 
       for (var hotel in dummyHotels) {
         await hotelCollection.add(hotel.toMap());
       }
-      print('✅ All dummy hotels uploaded successfully!');
     } catch (e) {
-      if (e.toString().contains('permission-denied')) {
-        rethrow;
+      print('Error: $e');
+    }
+  }
+
+  Future<void> uploadTrainRoutes() async {
+    try {
+      final snapshot = await trainCollection.limit(1).get();
+      if (snapshot.docs.isNotEmpty) return;
+
+      List<TrainRoute> dummyTrains = [
+        TrainRoute(
+          id: '',
+          name: 'The Main Line (Podi Menike)',
+          from: 'Colombo Fort',
+          to: 'Badulla / Ella',
+          imageUrl: 'https://images.unsplash.com/photo-1589139366408-9df8354c0e64?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=100',
+          description: 'Considered one of the most scenic train rides in the world through misty mountains and tea estates.',
+          schedule: ['05:55 AM (Morning Express)', '08:30 AM (Udarata Menike)', '20:00 PM (Night Mail)'],
+          bookingUrl: 'https://seatreservation.railway.gov.lk/',
+        ),
+        TrainRoute(
+          id: '',
+          name: 'Coastal Line',
+          from: 'Colombo Fort',
+          to: 'Galle / Matara',
+          imageUrl: 'https://images.unsplash.com/photo-1587595431973-160d0d94add1?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=100', // Reusing Ella for now or search
+          description: 'A beautiful journey along the southwest coast, literally meters from the ocean waves.',
+          schedule: ['06:50 AM (Sagarika)', '10:30 AM (Galu Kumari)', '15:10 PM (Express)'],
+          bookingUrl: 'https://seatreservation.railway.gov.lk/',
+        ),
+        TrainRoute(
+          id: '',
+          name: 'Yal Devi (Northern Line)',
+          from: 'Colombo Fort',
+          to: 'Jaffna',
+          imageUrl: 'https://images.unsplash.com/photo-1627915607164-7b20241db935?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=100',
+          description: 'The legendary express train connecting the capital with the vibrant northern capital of Jaffna.',
+          schedule: ['05:45 AM (Express)', '06:35 AM (Intercity)', '13:15 PM (Express)'],
+          bookingUrl: 'https://seatreservation.railway.gov.lk/',
+        ),
+      ];
+
+      for (var train in dummyTrains) {
+        await trainCollection.add(train.toMap());
       }
-      print('❌ Error uploading hotels: $e');
+    } catch (e) {
+      print('Error: $e');
     }
   }
 }
-
-
-
-
-
-
-

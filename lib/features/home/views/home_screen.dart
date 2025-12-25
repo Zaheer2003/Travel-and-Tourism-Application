@@ -9,6 +9,7 @@ import 'package:travel_tourism/core/database_service.dart';
 import 'package:travel_tourism/core/widgets/skeletons/destination_skeleton.dart';
 import 'package:travel_tourism/core/widgets/skeletons/hotel_skeleton.dart';
 import 'package:travel_tourism/features/destinations/views/destination_map_screen.dart';
+import 'package:travel_tourism/features/trains/views/train_route_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   HomeScreen({super.key});
@@ -52,6 +53,10 @@ class _HomeScreenState extends State<HomeScreen> {
               _buildDestinationsList(),
               const SizedBox(height: 32),
               if (_searchQuery.isEmpty) ...[
+                _buildSectionTitle('Iconic Train Routes', 'Explore'),
+                const SizedBox(height: 16),
+                _buildTrainsList(),
+                const SizedBox(height: 32),
                 _buildSectionTitle('Top Hotels', 'See all'),
                 const SizedBox(height: 16),
                 _buildHotelsList(),
@@ -329,6 +334,29 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildTrainsList() {
+    return SizedBox(
+      height: 250,
+      child: StreamBuilder<List<TrainRoute>>(
+        stream: _db.trainRoutes,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          final routes = snapshot.data ?? [];
+          if (routes.isEmpty) return const SizedBox();
+
+          return ListView.builder(
+            scrollDirection: Axis.horizontal,
+            padding: const EdgeInsets.only(left: 24, right: 8),
+            itemCount: routes.length,
+            itemBuilder: (context, index) => TrainRouteCard(route: routes[index]),
+          );
+        },
       ),
     );
   }

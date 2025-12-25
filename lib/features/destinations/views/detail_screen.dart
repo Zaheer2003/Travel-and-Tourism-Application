@@ -12,6 +12,7 @@ import 'package:travel_tourism/core/theme/app_theme.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:travel_tourism/features/hotels/models/hotel.dart';
 import 'package:travel_tourism/core/widgets/hotel_card.dart';
+import 'package:travel_tourism/features/destinations/services/weather_service.dart';
 
 class DetailScreen extends StatefulWidget {
   final Destination destination;
@@ -27,6 +28,7 @@ class _DetailScreenState extends State<DetailScreen> {
   final BookingService _bookingService = BookingService();
   final DatabaseService _db = DatabaseService();
   final FavoriteService _favoriteService = FavoriteService();
+  final WeatherService _weatherService = WeatherService();
   final User? _user = FirebaseAuth.instance.currentUser;
 
   void _showAddReviewModal(BuildContext context) {
@@ -479,48 +481,68 @@ class _DetailScreenState extends State<DetailScreen> {
                           const SizedBox(height: 24),
                           
                           // Weather Widget
-                          Container(
-                            padding: const EdgeInsets.all(20),
-                            decoration: BoxDecoration(
-                              color: Theme.of(context).cardColor,
-                              borderRadius: BorderRadius.circular(24),
-                              border: Border.all(color: Theme.of(context).dividerColor),
-                            ),
-                            child: Row(
-                              children: [
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
+                          FutureBuilder<WeatherData?>(
+                            future: _weatherService.getWeather(widget.destination.name),
+                            builder: (context, snapshot) {
+                              final weather = snapshot.data;
+                              if (snapshot.connectionState == ConnectionState.waiting) {
+                                return Container(
+                                  height: 100,
+                                  decoration: BoxDecoration(
+                                    color: Theme.of(context).cardColor,
+                                    borderRadius: BorderRadius.circular(24),
+                                    border: Border.all(color: Theme.of(context).dividerColor),
+                                  ),
+                                  child: const Center(child: CircularProgressIndicator()),
+                                );
+                              }
+                              
+                              if (weather == null) return const SizedBox.shrink();
+
+                              return Container(
+                                padding: const EdgeInsets.all(20),
+                                decoration: BoxDecoration(
+                                  color: Theme.of(context).cardColor,
+                                  borderRadius: BorderRadius.circular(24),
+                                  border: Border.all(color: Theme.of(context).dividerColor),
+                                ),
+                                child: Row(
                                   children: [
-                                    const Text('Current Weather', style: TextStyle(fontSize: 12, color: Colors.grey)),
-                                    const SizedBox(height: 4),
-                                    Row(
+                                    Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
-                                        Icon(Icons.wb_sunny, color: Colors.amber[600], size: 24),
-                                        const SizedBox(width: 8),
-                                        Text('28°C', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Theme.of(context).textTheme.displayLarge?.color)),
+                                        const Text('Current Weather', style: TextStyle(fontSize: 12, color: Colors.grey)),
+                                        const SizedBox(height: 4),
+                                        Row(
+                                          children: [
+                                            Text(weather.icon, style: const TextStyle(fontSize: 24)),
+                                            const SizedBox(width: 8),
+                                            Text('${weather.temp.round()}°C', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Theme.of(context).textTheme.displayLarge?.color)),
+                                          ],
+                                        ),
+                                        const SizedBox(height: 4),
+                                        Text(weather.condition, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500)),
                                       ],
                                     ),
-                                    const SizedBox(height: 4),
-                                    const Text('Mostly Sunny', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500)),
+                                    const Spacer(),
+                                    ...weather.hourly.map((h) {
+                                      return Padding(
+                                        padding: const EdgeInsets.only(left: 16),
+                                        child: Column(
+                                          children: [
+                                            Text(h.time, style: const TextStyle(fontSize: 10, color: Colors.grey)),
+                                            const SizedBox(height: 4),
+                                            Text(h.icon, style: const TextStyle(fontSize: 18)),
+                                            const SizedBox(height: 4),
+                                            Text('${h.temp.round()}°', style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                                          ],
+                                        ),
+                                      );
+                                    }).toList(),
                                   ],
                                 ),
-                                const Spacer(),
-                                ...List.generate(3, (index) {
-                                  return Padding(
-                                    padding: const EdgeInsets.only(left: 16),
-                                    child: Column(
-                                      children: [
-                                        Text('${12 + index} PM', style: const TextStyle(fontSize: 10, color: Colors.grey)),
-                                        const SizedBox(height: 4),
-                                        Icon(index == 1 ? Icons.cloud : Icons.wb_sunny, color: index == 1 ? Colors.blue : Colors.amber, size: 18),
-                                        const SizedBox(height: 4),
-                                        Text('${28 + index}°', style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
-                                      ],
-                                    ),
-                                  );
-                                }),
-                              ],
-                            ),
+                              );
+                            }
                           ),
                           const SizedBox(height: 32),
                           Text('About Destination', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Theme.of(context).textTheme.displayMedium?.color)),
