@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:travel_tourism/core/database_service.dart';
 import 'package:travel_tourism/core/theme/app_theme.dart';
+import 'package:travel_tourism/features/trains/models/train_route.dart';
 
 class TrainRouteCard extends StatelessWidget {
   final TrainRoute route;

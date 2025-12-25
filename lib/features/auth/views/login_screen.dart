@@ -110,17 +110,8 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                       children: [
                         const TextSpan(text: 'Discover\nthe beauty of\n'),
-                        TextSpan(
-                          text: 'SRI',
-                          style: TextStyle(color: Colors.yellow[600]),
-                        ),
-                        TextSpan(
-                          text: 'LAN',
-                          style: TextStyle(color: Colors.green[600]),
-                        ),
-                        TextSpan(
-                          text: 'KA',
-                          style: TextStyle(color: Colors.red[600]),
+                        const TextSpan(
+                          text: 'SRI LANKA',
                         ),
                       ],
                     ),

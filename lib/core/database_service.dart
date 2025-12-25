@@ -1,53 +1,4 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:travel_tourism/features/destinations/models/destination.dart';
-import 'package:travel_tourism/features/hotels/models/hotel.dart';
-
-class TrainRoute {
-  final String id;
-  final String name;
-  final String from;
-  final String to;
-  final String imageUrl;
-  final String description;
-  final List<String> schedule;
-  final String bookingUrl;
-
-  TrainRoute({
-    required this.id,
-    required this.name,
-    required this.from,
-    required this.to,
-    required this.imageUrl,
-    required this.description,
-    required this.schedule,
-    required this.bookingUrl,
-  });
-
-  Map<String, dynamic> toMap() {
-    return {
-      'name': name,
-      'from': from,
-      'to': to,
-      'imageUrl': imageUrl,
-      'description': description,
-      'schedule': schedule,
-      'bookingUrl': bookingUrl,
-    };
-  }
-
-  factory TrainRoute.fromFirestore(Map<String, dynamic> data, String id) {
-    return TrainRoute(
-      id: id,
-      name: data['name'] ?? '',
-      from: data['from'] ?? '',
-      to: data['to'] ?? '',
-      imageUrl: data['imageUrl'] ?? '',
-      description: data['description'] ?? '',
-      schedule: List<String>.from(data['schedule'] ?? []),
-      bookingUrl: data['bookingUrl'] ?? '',
-    );
-  }
-}
+import 'package:travel_tourism/features/trains/models/train_route.dart';
 
 class DatabaseService {
   final CollectionReference destinationCollection = 
@@ -254,10 +205,13 @@ class DatabaseService {
 
   Future<void> uploadTrainRoutes() async {
     try {
-      final snapshot = await trainCollection.limit(1).get();
+      print('DEBUG: Checking for train routes...');
+      final snapshot = await trainCollection.get();
+      print('DEBUG: Found ${snapshot.docs.length} train routes in Firestore');
+      
       if (snapshot.docs.isNotEmpty) return;
 
-      List<TrainRoute> dummyTrains = [
+      print('DEBUG: Collection empty. Uploading dummy trains...');
         TrainRoute(
           id: '',
           name: 'The Main Line (Podi Menike)',

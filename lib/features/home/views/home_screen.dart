@@ -10,6 +10,7 @@ import 'package:travel_tourism/core/widgets/skeletons/destination_skeleton.dart'
 import 'package:travel_tourism/core/widgets/skeletons/hotel_skeleton.dart';
 import 'package:travel_tourism/features/destinations/views/destination_map_screen.dart';
 import 'package:travel_tourism/features/trains/views/train_route_screen.dart';
+import 'package:travel_tourism/features/trains/models/train_route.dart';
 
 class HomeScreen extends StatefulWidget {
   HomeScreen({super.key});
@@ -348,7 +349,12 @@ class _HomeScreenState extends State<HomeScreen> {
             return const Center(child: CircularProgressIndicator());
           }
           final routes = snapshot.data ?? [];
-          if (routes.isEmpty) return const SizedBox();
+          if (routes.isEmpty) {
+            return const Padding(
+              padding: EdgeInsets.only(left: 24.0),
+              child: Text('Connecting to Railway Network... (Check your internet)', style: TextStyle(color: Colors.grey, fontSize: 13)),
+            );
+          }
 
           return ListView.builder(
             scrollDirection: Axis.horizontal,
