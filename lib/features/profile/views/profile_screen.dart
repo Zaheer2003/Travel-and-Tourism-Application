@@ -5,6 +5,12 @@ import 'package:travel_tourism/core/theme/app_theme.dart';
 import 'package:travel_tourism/features/settings/views/settings_screen.dart';
 import 'package:travel_tourism/features/favorites/views/favorites_screen.dart';
 
+import 'package:travel_tourism/features/profile/views/personal_info_screen.dart';
+import 'package:travel_tourism/features/profile/views/payment_methods_screen.dart';
+import 'package:travel_tourism/features/profile/views/feedback_screen.dart';
+import 'package:travel_tourism/features/profile/views/help_support_screen.dart';
+import 'package:travel_tourism/features/tools/views/currency_converter_screen.dart';
+
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
 
@@ -24,7 +30,7 @@ class ProfileScreen extends StatelessWidget {
               clipBehavior: Clip.none,
               children: [
                 Container(
-                  height: 200,
+                  height: 220,
                   width: double.infinity,
                   decoration: const BoxDecoration(
                     gradient: LinearGradient(
@@ -33,41 +39,44 @@ class ProfileScreen extends StatelessWidget {
                       end: Alignment.bottomRight,
                     ),
                     borderRadius: BorderRadius.only(
-                      bottomLeft: Radius.circular(40),
-                      bottomRight: Radius.circular(40),
+                      bottomLeft: Radius.circular(50),
+                      bottomRight: Radius.circular(50),
                     ),
                   ),
                 ),
                 Positioned(
                   top: 150,
                   child: Container(
-                    padding: const EdgeInsets.all(4),
+                    padding: const EdgeInsets.all(6),
                     decoration: BoxDecoration(
-                      color: Theme.of(context).cardColor,
+                      color: Theme.of(context).scaffoldBackgroundColor,
                       shape: BoxShape.circle,
                     ),
-                    child: CircleAvatar(
-                      radius: 50,
-                      backgroundImage: NetworkImage(
-                        user?.photoURL ?? 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80'
+                    child: Hero(
+                      tag: 'profile_avatar',
+                      child: CircleAvatar(
+                        radius: 55,
+                        backgroundImage: NetworkImage(
+                          user?.photoURL ?? 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80'
+                        ),
                       ),
                     ),
                   ),
                 ),
               ],
             ),
-            const SizedBox(height: 60),
+            const SizedBox(height: 70),
             Text(
-              user?.displayName ?? (user?.isAnonymous == true ? 'Guest User' : 'User'),
+              user?.displayName ?? (user?.isAnonymous == true ? 'Guest User' : 'Traveler'),
               style: TextStyle(
-                fontSize: 24,
+                fontSize: 26,
                 fontWeight: FontWeight.bold,
                 color: Theme.of(context).textTheme.displayLarge?.color,
               ),
             ),
-            const SizedBox(height: 4),
+            const SizedBox(height: 6),
             Text(
-              user?.email ?? (user?.isAnonymous == true ? 'Incognito Mode' : 'No email'),
+              user?.email ?? (user?.isAnonymous == true ? 'Incognito Mode' : 'No email logged'),
               style: TextStyle(
                 color: Theme.of(context).textTheme.bodyMedium?.color,
                 fontSize: 16,
@@ -78,8 +87,18 @@ class ProfileScreen extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 24),
               child: Column(
                 children: [
-                  _buildProfileOption(context, icon: Icons.person_outline, title: 'Personal Information'),
-                  _buildProfileOption(context, icon: Icons.payment_outlined, title: 'Payment Methods'),
+                   _buildProfileOption(
+                    context, 
+                    icon: Icons.person_outline, 
+                    title: 'Personal Information',
+                    onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const PersonalInfoScreen())),
+                  ),
+                  _buildProfileOption(
+                    context, 
+                    icon: Icons.payment_outlined, 
+                    title: 'Payment Methods',
+                    onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const PaymentMethodsScreen())),
+                  ),
                   _buildProfileOption(
                     context, 
                     icon: Icons.favorite_border, 
@@ -92,8 +111,24 @@ class ProfileScreen extends StatelessWidget {
                     title: 'Settings',
                     onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const SettingsScreen())),
                   ),
-                  _buildProfileOption(context, icon: Icons.message_outlined, title: 'Feedback'),
-                  _buildProfileOption(context, icon: Icons.help_outline, title: 'Help & Support'),
+                  _buildProfileOption(
+                    context, 
+                    icon: Icons.currency_exchange_outlined, 
+                    title: 'Currency Converter',
+                    onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const CurrencyConverterScreen())),
+                  ),
+                  _buildProfileOption(
+                    context, 
+                    icon: Icons.message_outlined, 
+                    title: 'Feedback',
+                    onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const FeedbackScreen())),
+                  ),
+                  _buildProfileOption(
+                    context, 
+                    icon: Icons.help_outline, 
+                    title: 'Help & Support',
+                    onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const HelpSupportScreen())),
+                  ),
                   const SizedBox(height: 24),
                   _buildProfileOption(
                     context, 
@@ -120,6 +155,7 @@ class ProfileScreen extends StatelessWidget {
       decoration: BoxDecoration(
         color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: Theme.of(context).dividerColor),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(Theme.of(context).brightness == Brightness.dark ? 0.2 : 0.02),

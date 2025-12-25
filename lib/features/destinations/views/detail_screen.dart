@@ -10,6 +10,8 @@ import 'package:travel_tourism/core/database_service.dart';
 import 'package:travel_tourism/features/favorites/services/favorite_service.dart';
 import 'package:travel_tourism/core/theme/app_theme.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:travel_tourism/features/hotels/models/hotel.dart';
+import 'package:travel_tourism/core/widgets/hotel_card.dart';
 
 class DetailScreen extends StatefulWidget {
   final Destination destination;
@@ -251,8 +253,59 @@ class _DetailScreenState extends State<DetailScreen> {
                           createdAt: DateTime.now(),
                         );
                         await _bookingService.createBooking(booking);
-                        Navigator.pop(context);
-                        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Trip booked successfully!')));
+                        Navigator.pop(context); // Close modal
+                        
+                        // Show Success Dialog
+                        showDialog(
+                          context: context,
+                          builder: (context) => AlertDialog(
+                            backgroundColor: Theme.of(context).cardColor,
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+                            content: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                const SizedBox(height: 16),
+                                Container(
+                                  padding: const EdgeInsets.all(16),
+                                  decoration: BoxDecoration(
+                                    color: Colors.green.withOpacity(0.1),
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: const Icon(Icons.check_circle, color: Colors.green, size: 60),
+                                ),
+                                const SizedBox(height: 24),
+                                Text(
+                                  'Trip Booked!',
+                                  style: TextStyle(
+                                    fontSize: 22,
+                                    fontWeight: FontWeight.bold,
+                                    color: Theme.of(context).textTheme.titleLarge?.color,
+                                  ),
+                                ),
+                                const SizedBox(height: 12),
+                                Text(
+                                  'Your journey to ${widget.destination.name} has been planned. Get ready for an adventure!',
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(color: Theme.of(context).textTheme.bodyMedium?.color),
+                                ),
+                                const SizedBox(height: 32),
+                                SizedBox(
+                                  width: double.infinity,
+                                  child: ElevatedButton(
+                                    onPressed: () => Navigator.pop(context),
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: AppTheme.primaryColor,
+                                      foregroundColor: Colors.white,
+                                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                      padding: const EdgeInsets.symmetric(vertical: 14),
+                                    ),
+                                    child: const Text('Great!', style: TextStyle(fontWeight: FontWeight.bold)),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppTheme.primaryColor,
@@ -288,6 +341,7 @@ class _DetailScreenState extends State<DetailScreen> {
                 ? Image.network(
                     widget.destination.imageUrl,
                     fit: BoxFit.cover,
+                    filterQuality: FilterQuality.high,
                     errorBuilder: (context, error, stackTrace) => Container(
                       color: Theme.of(context).brightness == Brightness.dark ? Colors.white10 : Colors.grey[300],
                       child: const Icon(Icons.image_not_supported, size: 50),
@@ -296,10 +350,12 @@ class _DetailScreenState extends State<DetailScreen> {
                 : Image.asset(
                     widget.destination.imageUrl.replaceAll('\\', '/'),
                     fit: BoxFit.cover,
+                    filterQuality: FilterQuality.high,
                     errorBuilder: (context, error, stackTrace) {
                       return Image.asset(
                         widget.destination.imageUrl.replaceAll('\\', '/'),
                         fit: BoxFit.cover,
+                        filterQuality: FilterQuality.high,
                         errorBuilder: (context, error, stackTrace) => Container(
                           color: Theme.of(context).brightness == Brightness.dark ? Colors.white10 : Colors.grey[300],
                           child: const Icon(Icons.image_not_supported, size: 50),
@@ -335,7 +391,20 @@ class _DetailScreenState extends State<DetailScreen> {
                           isFavorite ? Icons.favorite : Icons.favorite_border,
                           color: isFavorite ? Colors.red : Theme.of(context).iconTheme.color,
                         ),
-                        onPressed: () => _favoriteService.toggleFavorite(widget.destination.id),
+                        onPressed: () async {
+                          final added = await _favoriteService.toggleFavorite(widget.destination.id);
+                          if (mounted) {
+                            ScaffoldMessenger.of(context).clearSnackBars();
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(added ? 'Added to favorites!' : 'Removed from favorites'),
+                                behavior: SnackBarBehavior.floating,
+                                duration: const Duration(seconds: 1),
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                              ),
+                            );
+                          }
+                        },
                       ),
                     );
                   },
@@ -408,6 +477,52 @@ class _DetailScreenState extends State<DetailScreen> {
                             ],
                           ),
                           const SizedBox(height: 24),
+                          
+                          // Weather Widget
+                          Container(
+                            padding: const EdgeInsets.all(20),
+                            decoration: BoxDecoration(
+                              color: Theme.of(context).cardColor,
+                              borderRadius: BorderRadius.circular(24),
+                              border: Border.all(color: Theme.of(context).dividerColor),
+                            ),
+                            child: Row(
+                              children: [
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    const Text('Current Weather', style: TextStyle(fontSize: 12, color: Colors.grey)),
+                                    const SizedBox(height: 4),
+                                    Row(
+                                      children: [
+                                        Icon(Icons.wb_sunny, color: Colors.amber[600], size: 24),
+                                        const SizedBox(width: 8),
+                                        Text('28°C', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Theme.of(context).textTheme.displayLarge?.color)),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 4),
+                                    const Text('Mostly Sunny', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500)),
+                                  ],
+                                ),
+                                const Spacer(),
+                                ...List.generate(3, (index) {
+                                  return Padding(
+                                    padding: const EdgeInsets.only(left: 16),
+                                    child: Column(
+                                      children: [
+                                        Text('${12 + index} PM', style: const TextStyle(fontSize: 10, color: Colors.grey)),
+                                        const SizedBox(height: 4),
+                                        Icon(index == 1 ? Icons.cloud : Icons.wb_sunny, color: index == 1 ? Colors.blue : Colors.amber, size: 18),
+                                        const SizedBox(height: 4),
+                                        Text('${28 + index}°', style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                                      ],
+                                    ),
+                                  );
+                                }),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(height: 32),
                           Text('About Destination', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Theme.of(context).textTheme.displayMedium?.color)),
                           const SizedBox(height: 12),
                           Text(
@@ -425,8 +540,9 @@ class _DetailScreenState extends State<DetailScreen> {
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(24),
                               image: const DecorationImage(
-                                image: NetworkImage('https://images.unsplash.com/photo-1526772662000-3f88f10405ff?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'),
+                                image: NetworkImage('https://images.unsplash.com/photo-1526772662000-3f88f10405ff?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=100'),
                                 fit: BoxFit.cover,
+                                filterQuality: FilterQuality.high,
                               ),
                             ),
                             alignment: Alignment.center,
@@ -468,18 +584,20 @@ class _DetailScreenState extends State<DetailScreen> {
                                           ClipRRect(
                                             borderRadius: const BorderRadius.horizontal(left: Radius.circular(16)),
                                             child: d.imageUrl.startsWith('http')
-                                              ? Image.network(d.imageUrl, width: 60, height: 100, fit: BoxFit.cover, errorBuilder: (context, error, stackTrace) => Container(width: 60, height: 100, color: Colors.grey[200], child: const Icon(Icons.image_not_supported, size: 20)))
+                                              ? Image.network(d.imageUrl, width: 60, height: 100, fit: BoxFit.cover, filterQuality: FilterQuality.high, errorBuilder: (context, error, stackTrace) => Container(width: 60, height: 100, color: Colors.grey[200], child: const Icon(Icons.image_not_supported, size: 20)))
                                               : Image.asset(
                                                   d.imageUrl.replaceAll('\\', '/'),
                                                   width: 60,
                                                   height: 100,
                                                   fit: BoxFit.cover,
+                                                  filterQuality: FilterQuality.high,
                                                   errorBuilder: (context, error, stackTrace) {
                                                     return Image.asset(
                                                       d.imageUrl.replaceAll('\\', '/'),
                                                       width: 60,
                                                       height: 100,
                                                       fit: BoxFit.cover,
+                                                      filterQuality: FilterQuality.high,
                                                       errorBuilder: (context, error, stackTrace) => Container(width: 60, height: 100, color: Colors.grey[200], child: const Icon(Icons.image_not_supported, size: 20)),
                                                     );
                                                   },
@@ -492,6 +610,26 @@ class _DetailScreenState extends State<DetailScreen> {
                                         ],
                                       ),
                                     );
+                                  },
+                                );
+                              },
+                            ),
+                          ),
+                          const SizedBox(height: 40),
+                          Text('Nearby Hotels', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Theme.of(context).textTheme.displayMedium?.color)),
+                          const SizedBox(height: 16),
+                          SizedBox(
+                            height: 240,
+                            child: StreamBuilder<List<Hotel>>(
+                              stream: _db.hotels,
+                              builder: (context, snapshot) {
+                                final hotels = snapshot.data ?? [];
+                                if (hotels.isEmpty) return const Center(child: CircularProgressIndicator());
+                                return ListView.builder(
+                                  scrollDirection: Axis.horizontal,
+                                  itemCount: hotels.length,
+                                  itemBuilder: (context, index) {
+                                    return HotelCard(hotel: hotels[index]);
                                   },
                                 );
                               },

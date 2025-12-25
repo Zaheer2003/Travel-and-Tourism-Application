@@ -6,6 +6,9 @@ import 'package:travel_tourism/core/widgets/destination_card.dart';
 import 'package:travel_tourism/core/widgets/hotel_card.dart';
 import 'package:travel_tourism/core/theme/app_theme.dart';
 import 'package:travel_tourism/core/database_service.dart';
+import 'package:travel_tourism/core/widgets/skeletons/destination_skeleton.dart';
+import 'package:travel_tourism/core/widgets/skeletons/hotel_skeleton.dart';
+import 'package:travel_tourism/features/destinations/views/destination_map_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   HomeScreen({super.key});
@@ -38,7 +41,13 @@ class _HomeScreenState extends State<HomeScreen> {
               _buildHeader(user, context),
               _buildSearchBar(),
               const SizedBox(height: 32),
-              _buildSectionTitle(_searchQuery.isEmpty ? 'Trending Destinations' : 'Search Results', 'See all'),
+              _buildSectionTitle(
+                _searchQuery.isEmpty ? 'Trending Destinations' : 'Search Results', 
+                'See all',
+                onActionTap: () {
+                   // Optional: Navigate to see all destinations
+                },
+              ),
               const SizedBox(height: 16),
               _buildDestinationsList(),
               const SizedBox(height: 32),
@@ -107,7 +116,7 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             child: CircleAvatar(
               radius: 24,
-              backgroundImage: NetworkImage(user?.photoURL ?? 'https://images.unsplash.com/photo-1494790108377-be9c29b29330'),
+              backgroundImage: NetworkImage(user?.photoURL ?? 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=100'),
             ),
           ),
         ],
@@ -149,25 +158,48 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildSectionTitle(String title, String action) {
+  Widget _buildSectionTitle(String title, String action, {VoidCallback? onActionTap}) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 24.0),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(
-            title,
-            style: TextStyle(
-              fontSize: 22,
-              fontWeight: FontWeight.bold,
-              color: Theme.of(context).textTheme.displayMedium?.color,
-            ),
+          Row(
+            children: [
+              Text(
+                title,
+                style: TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                  color: Theme.of(context).textTheme.displayMedium?.color,
+                ),
+              ),
+              if (title == 'Trending Destinations') ...[
+                const SizedBox(width: 8),
+                StreamBuilder<List<Destination>>(
+                  stream: _db.destinations,
+                  builder: (context, snapshot) {
+                    if (!snapshot.hasData || snapshot.data!.isEmpty) return const SizedBox();
+                    return GestureDetector(
+                      onTap: () => Navigator.push(
+                        context, 
+                        MaterialPageRoute(builder: (context) => DestinationMapScreen(destinations: snapshot.data!))
+                      ),
+                      child: Icon(Icons.map_outlined, color: AppTheme.primaryColor, size: 20),
+                    );
+                  }
+                ),
+              ],
+            ],
           ),
-          Text(
-            action,
-            style: const TextStyle(
-              color: AppTheme.primaryColor,
-              fontWeight: FontWeight.w600,
+          GestureDetector(
+            onTap: onActionTap,
+            child: Text(
+              action,
+              style: const TextStyle(
+                color: AppTheme.primaryColor,
+                fontWeight: FontWeight.w600,
+              ),
             ),
           ),
         ],
@@ -182,7 +214,12 @@ class _HomeScreenState extends State<HomeScreen> {
         stream: _db.destinations,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
+            return ListView.builder(
+              scrollDirection: Axis.horizontal,
+              padding: const EdgeInsets.only(left: 24, right: 8),
+              itemCount: 3,
+              itemBuilder: (context, index) => const DestinationSkeleton(),
+            );
           }
           if (snapshot.hasError) {
             return Center(
@@ -225,7 +262,12 @@ class _HomeScreenState extends State<HomeScreen> {
         stream: _db.hotels,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
+            return ListView.builder(
+              scrollDirection: Axis.horizontal,
+              padding: const EdgeInsets.only(left: 24, right: 8),
+              itemCount: 4,
+              itemBuilder: (context, index) => const HotelSkeleton(),
+            );
           }
           if (snapshot.hasError) {
             return const SizedBox(); // Hide if error

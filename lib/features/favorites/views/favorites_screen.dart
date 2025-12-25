@@ -4,6 +4,7 @@ import 'package:travel_tourism/features/favorites/services/favorite_service.dart
 import 'package:travel_tourism/core/database_service.dart';
 import 'package:travel_tourism/core/widgets/destination_card.dart';
 import 'package:travel_tourism/core/theme/app_theme.dart';
+import 'package:travel_tourism/core/widgets/skeletons/destination_skeleton.dart';
 
 class FavoritesScreen extends StatelessWidget {
   const FavoritesScreen({super.key});
@@ -25,37 +26,20 @@ class FavoritesScreen extends StatelessWidget {
         stream: favoriteService.getFavoriteIds(),
         builder: (context, favSnapshot) {
           if (favSnapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
+            return _buildSkeletonGrid();
           }
 
           final favoriteIds = favSnapshot.data ?? [];
 
           if (favoriteIds.isEmpty) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                   Icon(Icons.favorite_border, size: 80, color: Colors.grey[200]),
-                   const SizedBox(height: 16),
-                   const Text(
-                     'Your wishlist is empty',
-                     style: TextStyle(fontSize: 18, color: AppTheme.lightTextColor, fontWeight: FontWeight.bold),
-                   ),
-                   const SizedBox(height: 8),
-                   const Text(
-                     'Tap the heart on any destination to save it here!',
-                     style: TextStyle(color: AppTheme.lightTextColor),
-                   ),
-                ],
-              ),
-            );
+            return _buildEmptyState();
           }
 
           return StreamBuilder<List<Destination>>(
             stream: dbService.destinations,
             builder: (context, destSnapshot) {
               if (destSnapshot.connectionState == ConnectionState.waiting) {
-                return const Center(child: CircularProgressIndicator());
+                return _buildSkeletonGrid();
               }
 
               final allDestinations = destSnapshot.data ?? [];
@@ -73,14 +57,47 @@ class FavoritesScreen extends StatelessWidget {
                 ),
                 itemCount: favoriteDestinations.length,
                 itemBuilder: (context, index) {
-                  // We use a slightly smaller version or the standard card
-                  final dest = favoriteDestinations[index];
-                  return _buildSmallCard(context, dest);
+                  return DestinationCard(destination: favoriteDestinations[index]);
                 },
               );
             },
           );
         },
+      ),
+    );
+  }
+
+  Widget _buildSkeletonGrid() {
+    return GridView.builder(
+      padding: const EdgeInsets.all(24),
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 2,
+        childAspectRatio: 0.7,
+        crossAxisSpacing: 20,
+        mainAxisSpacing: 20,
+      ),
+      itemCount: 6,
+      itemBuilder: (context, index) => const DestinationSkeleton(),
+    );
+  }
+
+  Widget _buildEmptyState() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(Icons.favorite_border, size: 80, color: Colors.grey[200]),
+          const SizedBox(height: 16),
+          const Text(
+            'Your wishlist is empty',
+            style: TextStyle(fontSize: 18, color: AppTheme.lightTextColor, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 8),
+          const Text(
+            'Tap the heart on any destination to save it here!',
+            style: TextStyle(color: AppTheme.lightTextColor),
+          ),
+        ],
       ),
     );
   }

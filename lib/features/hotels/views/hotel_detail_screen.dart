@@ -5,6 +5,7 @@ import 'package:travel_tourism/features/bookings/models/hotel_booking.dart';
 import 'package:travel_tourism/features/hotels/services/hotel_booking_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:intl/intl.dart';
+import 'package:travel_tourism/features/favorites/services/favorite_service.dart';
 
 class HotelDetailScreen extends StatefulWidget {
   final Hotel hotel;
@@ -17,6 +18,7 @@ class HotelDetailScreen extends StatefulWidget {
 
 class _HotelDetailScreenState extends State<HotelDetailScreen> {
   final HotelBookingService _hotelBookingService = HotelBookingService();
+  final FavoriteService _favoriteService = FavoriteService();
   final User? _user = FirebaseAuth.instance.currentUser;
 
   void _showHotelBookingModal(BuildContext context) {
@@ -343,9 +345,61 @@ class _HotelDetailScreenState extends State<HotelDetailScreen> {
 
                         try {
                           await _hotelBookingService.createHotelBooking(booking);
-                          Navigator.pop(context);
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Hotel reservation confirmed!')),
+                          Navigator.pop(context); // Close modal
+                          
+                          // Show Success Dialog
+                          showDialog(
+                            context: context,
+                            builder: (context) => AlertDialog(
+                              backgroundColor: Theme.of(context).cardColor,
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+                              content: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  const SizedBox(height: 16),
+                                  Container(
+                                    padding: const EdgeInsets.all(16),
+                                    decoration: BoxDecoration(
+                                      color: Colors.green.withOpacity(0.1),
+                                      shape: BoxShape.circle,
+                                    ),
+                                    child: const Icon(Icons.check_circle, color: Colors.green, size: 60),
+                                  ),
+                                  const SizedBox(height: 24),
+                                  Text(
+                                    'Booking Confirmed!',
+                                    style: TextStyle(
+                                      fontSize: 22,
+                                      fontWeight: FontWeight.bold,
+                                      color: Theme.of(context).textTheme.titleLarge?.color,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 12),
+                                  Text(
+                                    'Your reservation at ${widget.hotel.name} has been successfully placed.',
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(color: Theme.of(context).textTheme.bodyMedium?.color),
+                                  ),
+                                  const SizedBox(height: 32),
+                                  SizedBox(
+                                    width: double.infinity,
+                                    child: ElevatedButton(
+                                      onPressed: () {
+                                        Navigator.pop(context); // Close Dialog
+                                        // Optional: Navigate to bookings tab
+                                      },
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: AppTheme.primaryColor,
+                                        foregroundColor: Colors.white,
+                                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                        padding: const EdgeInsets.symmetric(vertical: 14),
+                                      ),
+                                      child: const Text('Great!', style: TextStyle(fontWeight: FontWeight.bold)),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
                           );
                         } catch (e) {
                           ScaffoldMessenger.of(context).showSnackBar(
@@ -397,10 +451,45 @@ class _HotelDetailScreenState extends State<HotelDetailScreen> {
                     ),
                   ),
                 ),
+                actions: [
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: StreamBuilder<bool>(
+                      stream: _favoriteService.isFavorite(widget.hotel.id),
+                      builder: (context, snapshot) {
+                        final isFavorite = snapshot.data ?? false;
+                        return CircleAvatar(
+                          backgroundColor: Theme.of(context).cardColor,
+                          child: IconButton(
+                            icon: Icon(
+                              isFavorite ? Icons.favorite : Icons.favorite_border,
+                              color: isFavorite ? Colors.red : Theme.of(context).iconTheme.color,
+                            ),
+                            onPressed: () async {
+                              final added = await _favoriteService.toggleFavorite(widget.hotel.id);
+                              if (context.mounted) {
+                                ScaffoldMessenger.of(context).clearSnackBars();
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(added ? 'Hotel added to favorites!' : 'Hotel removed from favorites'),
+                                    behavior: SnackBarBehavior.floating,
+                                    duration: const Duration(seconds: 1),
+                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                                  ),
+                                );
+                              }
+                            },
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ],
                 flexibleSpace: FlexibleSpaceBar(
                   background: Image.network(
                     widget.hotel.imageUrl,
                     fit: BoxFit.cover,
+                    filterQuality: FilterQuality.high,
                     errorBuilder: (context, error, stackTrace) => Container(
                       color: Theme.of(context).brightness == Brightness.dark ? Colors.white10 : Colors.grey[200],
                       child: Icon(Icons.hotel, size: 100, color: Theme.of(context).brightness == Brightness.dark ? Colors.white24 : Colors.grey),

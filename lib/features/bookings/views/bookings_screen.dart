@@ -220,9 +220,27 @@ class BookingsScreen extends StatelessWidget {
           ElevatedButton(
             onPressed: () async {
               await _bookingService.updateBookingStatus(booking.id, 'Cancelled');
-              Navigator.pop(context);
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Trip cancelled successfully.')),
+              Navigator.pop(context); // Close confirm dialog
+              
+              // Show Success Pop message
+              showDialog(
+                context: context,
+                builder: (context) => AlertDialog(
+                  backgroundColor: Theme.of(context).cardColor,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                  content: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(Icons.info_outline, color: Colors.orange, size: 48),
+                      const SizedBox(height: 16),
+                      const Text('Booking Cancelled', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+                      const SizedBox(height: 8),
+                      Text('The trip to ${booking.destinationName} has been cancelled.', textAlign: TextAlign.center),
+                      const SizedBox(height: 24),
+                      TextButton(onPressed: () => Navigator.pop(context), child: const Text('OK')),
+                    ],
+                  ),
+                ),
               );
             },
             style: ElevatedButton.styleFrom(
@@ -252,9 +270,27 @@ class BookingsScreen extends StatelessWidget {
           ElevatedButton(
             onPressed: () async {
               await _hotelBookingService.updateHotelBookingStatus(booking.id, 'Cancelled');
-              Navigator.pop(context);
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Reservation cancelled successfully.')),
+              Navigator.pop(context); // Close confirm dialog
+              
+              // Show Success Pop message
+              showDialog(
+                context: context,
+                builder: (context) => AlertDialog(
+                  backgroundColor: Theme.of(context).cardColor,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                  content: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(Icons.info_outline, color: Colors.orange, size: 48),
+                      const SizedBox(height: 16),
+                      const Text('Reservation Cancelled', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+                      const SizedBox(height: 8),
+                      Text('Your stay at ${booking.hotelName} has been cancelled.', textAlign: TextAlign.center),
+                      const SizedBox(height: 24),
+                      TextButton(onPressed: () => Navigator.pop(context), child: const Text('OK')),
+                    ],
+                  ),
+                ),
               );
             },
             style: ElevatedButton.styleFrom(

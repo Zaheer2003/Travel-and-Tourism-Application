@@ -44,6 +44,7 @@ class DestinationCard extends StatelessWidget {
                       height: 400,
                       width: 280,
                       fit: BoxFit.cover,
+                      filterQuality: FilterQuality.high,
                       errorBuilder: (context, error, stackTrace) => Container(
                         height: 400,
                         width: 280,
@@ -56,12 +57,14 @@ class DestinationCard extends StatelessWidget {
                       height: 400,
                       width: 280,
                       fit: BoxFit.cover,
+                      filterQuality: FilterQuality.high,
                       errorBuilder: (context, error, stackTrace) {
                         return Image.asset(
                           destination.imageUrl.replaceAll('\\', '/'),
                           height: 400,
                           width: 280,
                           fit: BoxFit.cover,
+                          filterQuality: FilterQuality.high,
                           errorBuilder: (context, error, stackTrace) => Container(
                             height: 400,
                             width: 280,

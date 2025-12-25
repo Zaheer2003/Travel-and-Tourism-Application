@@ -43,6 +43,7 @@ class HotelCard extends StatelessWidget {
                 height: 120,
                 width: 200,
                 fit: BoxFit.cover,
+                filterQuality: FilterQuality.high,
                 errorBuilder: (context, error, stackTrace) => Container(
                   height: 120,
                   width: 200,

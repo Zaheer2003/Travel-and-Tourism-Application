@@ -110,8 +110,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
       child: Text(
         title.toUpperCase(),
-        style: const TextStyle(
-          color: AppTheme.lightTextColor,
+        style: TextStyle(
+          color: Theme.of(context).textTheme.bodySmall?.color,
           fontSize: 12,
           fontWeight: FontWeight.bold,
           letterSpacing: 1.2,
@@ -132,6 +132,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       decoration: BoxDecoration(
         color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: Theme.of(context).dividerColor),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(Theme.of(context).brightness == Brightness.dark ? 0.2 : 0.02),
@@ -165,17 +166,21 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       builder: (context) {
         return Container(
           padding: const EdgeInsets.all(24),
+          decoration: BoxDecoration(
+            color: Theme.of(context).cardColor,
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(25)),
+          ),
           height: 300,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text('Select Language', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+              Text('Select Language', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Theme.of(context).textTheme.titleLarge?.color)),
               const SizedBox(height: 20),
               Expanded(
                 child: ListView(
                   children: ['English', 'Sinhala', 'Tamil', 'Mandarin', 'French'].map((lang) {
                     return ListTile(
-                      title: Text(lang),
+                      title: Text(lang, style: TextStyle(color: Theme.of(context).textTheme.bodyLarge?.color)),
                       onTap: () {
                         setState(() => _selectedLanguage = lang);
                         Navigator.pop(context);

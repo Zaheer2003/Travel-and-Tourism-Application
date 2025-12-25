@@ -7,6 +7,7 @@ import 'features/auth/view_models/auth_providers.dart';
 import 'features/home/views/main_screen.dart';
 import 'features/auth/views/login_screen.dart';
 import 'firebase_options.dart';
+import 'core/services/offline_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -14,6 +15,8 @@ void main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+
+  await OfflineService.init();
   
   runApp(
     const ProviderScope(

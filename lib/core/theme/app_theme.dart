@@ -12,6 +12,8 @@ class AppTheme {
     useMaterial3: true,
     primaryColor: primaryColor,
     scaffoldBackgroundColor: backgroundColor,
+    cardColor: Colors.white,
+    dividerColor: Colors.grey[200],
     fontFamily: 'Roboto',
     appBarTheme: const AppBarTheme(
       backgroundColor: Colors.transparent,
@@ -26,13 +28,16 @@ class AppTheme {
     textTheme: const TextTheme(
       displayLarge: TextStyle(color: textColor, fontSize: 32, fontWeight: FontWeight.bold),
       displayMedium: TextStyle(color: textColor, fontSize: 24, fontWeight: FontWeight.bold),
+      titleLarge: TextStyle(color: textColor, fontSize: 18, fontWeight: FontWeight.bold),
       bodyLarge: TextStyle(color: textColor, fontSize: 16),
-      bodyMedium: TextStyle(color: lightTextColor, fontSize: 14),
+      bodyMedium: TextStyle(color: textColor, fontSize: 14),
+      bodySmall: TextStyle(color: lightTextColor, fontSize: 12),
     ),
     colorScheme: ColorScheme.fromSwatch().copyWith(
       primary: primaryColor,
       secondary: accentColor,
       surface: Colors.white,
+      onSurface: textColor,
       brightness: Brightness.light,
     ),
   );
@@ -41,6 +46,8 @@ class AppTheme {
     useMaterial3: true,
     primaryColor: primaryColor,
     scaffoldBackgroundColor: darkBackgroundColor,
+    cardColor: const Color(0xFF1E293B),
+    dividerColor: Colors.white10,
     fontFamily: 'Roboto',
     appBarTheme: const AppBarTheme(
       backgroundColor: Colors.transparent,
@@ -55,13 +62,16 @@ class AppTheme {
     textTheme: const TextTheme(
       displayLarge: TextStyle(color: Colors.white, fontSize: 32, fontWeight: FontWeight.bold),
       displayMedium: TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold),
-      bodyLarge: TextStyle(color: Colors.white70, fontSize: 16),
-      bodyMedium: TextStyle(color: Colors.white60, fontSize: 14),
+      titleLarge: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
+      bodyLarge: TextStyle(color: Colors.white, fontSize: 16),
+      bodyMedium: TextStyle(color: Colors.white70, fontSize: 14),
+      bodySmall: TextStyle(color: Colors.white60, fontSize: 12),
     ),
     colorScheme: ColorScheme.fromSwatch().copyWith(
       primary: primaryColor,
       secondary: accentColor,
-      surface: const Color(0xFF1E293B), // Slightly lighter blue for cards
+      surface: const Color(0xFF1E293B),
+      onSurface: Colors.white,
       brightness: Brightness.dark,
     ),
   );

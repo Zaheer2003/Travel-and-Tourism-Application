@@ -5,10 +5,10 @@ class FavoriteService {
   final FirebaseFirestore _db = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
-  // Toggle favorite
-  Future<void> toggleFavorite(String destinationId) async {
+  // Toggle favorite: returns true if added, false if removed
+  Future<bool> toggleFavorite(String destinationId) async {
     final user = _auth.currentUser;
-    if (user == null) return;
+    if (user == null) return false;
 
     final favoriteRef = _db
         .collection('users')
@@ -20,11 +20,13 @@ class FavoriteService {
 
     if (doc.exists) {
       await favoriteRef.delete();
+      return false;
     } else {
       await favoriteRef.set({
         'destinationId': destinationId,
         'addedAt': FieldValue.serverTimestamp(),
       });
+      return true;
     }
   }
 
