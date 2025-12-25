@@ -151,12 +151,12 @@ class _ExploreScreenState extends State<ExploreScreen> {
                       ),
                     )
                   : Image.asset(
-                      dest.imageUrl.replaceAll('\\', '/').replaceFirst('assets/', ''),
+                      dest.imageUrl.replaceAll('\\', '/'),
                       fit: BoxFit.cover,
                       width: double.infinity,
                       errorBuilder: (context, error, stackTrace) {
                         return Image.asset(
-                          dest.imageUrl.replaceAll('\\', '/').replaceAll('assets/', ''),
+                          dest.imageUrl.replaceAll('\\', '/'),
                           fit: BoxFit.cover,
                           width: double.infinity,
                           errorBuilder: (context, error, stackTrace) => Container(

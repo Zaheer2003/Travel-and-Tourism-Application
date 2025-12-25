@@ -71,10 +71,12 @@ class BookingsScreen extends StatelessWidget {
           padding: const EdgeInsets.all(16),
           itemCount: bookings.length,
           itemBuilder: (context, index) {
+            final booking = bookings[index];
             return BookingCard(
-              booking: bookings[index],
-              onCancel: bookings[index].status == 'Upcoming' 
-                ? () => _showCancelDialog(context, bookings[index]) 
+              key: ValueKey(booking.id),
+              booking: booking,
+              onCancel: booking.status == 'Upcoming' 
+                ? () => _showCancelDialog(context, booking) 
                 : null,
             );
           },
@@ -102,10 +104,12 @@ class BookingsScreen extends StatelessWidget {
           padding: const EdgeInsets.all(16),
           itemCount: bookings.length,
           itemBuilder: (context, index) {
+            final booking = bookings[index];
             return HotelBookingCard(
-              booking: bookings[index],
-              onCancel: bookings[index].status == 'Upcoming' 
-                ? () => _showCancelHotelDialog(context, bookings[index]) 
+              key: ValueKey(booking.id),
+              booking: booking,
+              onCancel: booking.status == 'Upcoming' 
+                ? () => _showCancelHotelDialog(context, booking) 
                 : null,
             );
           },
@@ -142,10 +146,12 @@ class BookingsScreen extends StatelessWidget {
               padding: const EdgeInsets.all(16),
               children: [
                 ...destBookings.map((booking) => BookingCard(
+                  key: ValueKey(booking.id),
                   booking: booking,
                   onCancel: status == 'Upcoming' ? () => _showCancelDialog(context, booking) : null,
                 )),
                 ...hotelBookings.map((booking) => HotelBookingCard(
+                  key: ValueKey(booking.id),
                   booking: booking,
                   onCancel: status == 'Upcoming' ? () => _showCancelHotelDialog(context, booking) : null,
                 )),
@@ -181,10 +187,12 @@ class BookingsScreen extends StatelessWidget {
               padding: const EdgeInsets.all(16),
               children: [
                 ...destBookings.map((booking) => BookingCard(
+                  key: ValueKey(booking.id),
                   booking: booking,
                   onCancel: booking.status == 'Upcoming' ? () => _showCancelDialog(context, booking) : null,
                 )),
                 ...hotelBookings.map((booking) => HotelBookingCard(
+                  key: ValueKey(booking.id),
                   booking: booking,
                   onCancel: booking.status == 'Upcoming' ? () => _showCancelHotelDialog(context, booking) : null,
                 )),
@@ -340,13 +348,13 @@ class BookingCard extends StatelessWidget {
                         width: 80, height: 80, color: Theme.of(context).brightness == Brightness.dark ? Colors.white10 : Colors.grey[200], child: const Icon(Icons.image_not_supported)),
                     )
                   : Image.asset(
-                      booking.destinationImage.replaceAll('\\', '/').replaceFirst('assets/', ''),
+                      booking.destinationImage.replaceAll('\\', '/'),
                       width: 80,
                       height: 80,
                       fit: BoxFit.cover,
                       errorBuilder: (context, error, stackTrace) {
                         return Image.asset(
-                          booking.destinationImage.replaceAll('\\', '/').replaceAll('assets/', ''),
+                          booking.destinationImage.replaceAll('\\', '/'),
                           width: 80,
                           height: 80,
                           fit: BoxFit.cover,
@@ -461,18 +469,31 @@ class HotelBookingCard extends StatelessWidget {
             children: [
               ClipRRect(
                 borderRadius: BorderRadius.circular(16),
-                child: Image.network(
-                  booking.hotelImage,
-                  width: 80,
-                  height: 80,
-                  fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) => Container(
-                    width: 80,
-                    height: 80,
-                    color: Theme.of(context).brightness == Brightness.dark ? Colors.white10 : Colors.grey[200],
-                    child: const Icon(Icons.hotel),
-                  ),
-                ),
+                child: booking.hotelImage.startsWith('http')
+                  ? Image.network(
+                      booking.hotelImage,
+                      width: 80,
+                      height: 80,
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) => Container(
+                        width: 80,
+                        height: 80,
+                        color: Theme.of(context).brightness == Brightness.dark ? Colors.white10 : Colors.grey[200],
+                        child: const Icon(Icons.hotel),
+                      ),
+                    )
+                  : Image.asset(
+                      booking.hotelImage.replaceAll('\\', '/'),
+                      width: 80,
+                      height: 80,
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) => Container(
+                        width: 80,
+                        height: 80,
+                        color: Theme.of(context).brightness == Brightness.dark ? Colors.white10 : Colors.grey[200],
+                        child: const Icon(Icons.hotel),
+                      ),
+                    ),
               ),
               const SizedBox(width: 16),
               Expanded(

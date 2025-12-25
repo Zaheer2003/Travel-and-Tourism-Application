@@ -52,13 +52,13 @@ class DestinationCard extends StatelessWidget {
                       ),
                     )
                   : Image.asset(
-                      destination.imageUrl.replaceAll('\\', '/').replaceFirst('assets/', ''),
+                      destination.imageUrl.replaceAll('\\', '/'),
                       height: 400,
                       width: 280,
                       fit: BoxFit.cover,
                       errorBuilder: (context, error, stackTrace) {
                         return Image.asset(
-                          destination.imageUrl.replaceAll('\\', '/').replaceAll('assets/', ''),
+                          destination.imageUrl.replaceAll('\\', '/'),
                           height: 400,
                           width: 280,
                           fit: BoxFit.cover,

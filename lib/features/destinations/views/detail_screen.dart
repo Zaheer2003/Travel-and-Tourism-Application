@@ -294,11 +294,11 @@ class _DetailScreenState extends State<DetailScreen> {
                     ),
                   )
                 : Image.asset(
-                    widget.destination.imageUrl.replaceAll('\\', '/').replaceFirst('assets/', ''),
+                    widget.destination.imageUrl.replaceAll('\\', '/'),
                     fit: BoxFit.cover,
                     errorBuilder: (context, error, stackTrace) {
                       return Image.asset(
-                        widget.destination.imageUrl.replaceAll('\\', '/').replaceAll('assets/', ''),
+                        widget.destination.imageUrl.replaceAll('\\', '/'),
                         fit: BoxFit.cover,
                         errorBuilder: (context, error, stackTrace) => Container(
                           color: Theme.of(context).brightness == Brightness.dark ? Colors.white10 : Colors.grey[300],
@@ -470,13 +470,13 @@ class _DetailScreenState extends State<DetailScreen> {
                                             child: d.imageUrl.startsWith('http')
                                               ? Image.network(d.imageUrl, width: 60, height: 100, fit: BoxFit.cover, errorBuilder: (context, error, stackTrace) => Container(width: 60, height: 100, color: Colors.grey[200], child: const Icon(Icons.image_not_supported, size: 20)))
                                               : Image.asset(
-                                                  d.imageUrl.replaceAll('\\', '/').replaceFirst('assets/', ''),
+                                                  d.imageUrl.replaceAll('\\', '/'),
                                                   width: 60,
                                                   height: 100,
                                                   fit: BoxFit.cover,
                                                   errorBuilder: (context, error, stackTrace) {
                                                     return Image.asset(
-                                                      d.imageUrl.replaceAll('\\', '/').replaceAll('assets/', ''),
+                                                      d.imageUrl.replaceAll('\\', '/'),
                                                       width: 60,
                                                       height: 100,
                                                       fit: BoxFit.cover,

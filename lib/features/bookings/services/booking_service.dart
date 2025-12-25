@@ -19,6 +19,7 @@ class BookingService {
     return _db
         .collection('bookings')
         .where('userId', isEqualTo: user.uid)
+        .orderBy('createdAt', descending: true)
         .snapshots()
         .map((snapshot) => snapshot.docs
             .map((doc) => Booking.fromMap(doc.id, doc.data()))

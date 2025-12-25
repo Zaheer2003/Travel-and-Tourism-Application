@@ -13,7 +13,20 @@
           "package_name": "com.example.travelandtourism"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "921795982728-rh1pvdrel6jsna8a40kp5n63fa1raqoh.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.travelandtourism",
+            "certificate_hash": "d0a08b649def8ae55f83ef01c2ab90a967ab4d1b"
+          }
+        },
+        {
+          "client_id": "921795982728-2ce45c0r0uog3542dcsuauto7rtnoj7q.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyCgTWNuwUcefL-5XQLshZRoYjLC4pMucdA"
@@ -21,7 +34,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "921795982728-2ce45c0r0uog3542dcsuauto7rtnoj7q.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }
