@@ -49,6 +49,20 @@ class _HomeScreenState extends State<HomeScreen> {
               children: [
                 _buildHeader(user, context),
                 _buildSearchBar(),
+                const SizedBox(height: 24),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                  child: Text(
+                    'Explore by Category',
+                    style: TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                      color: Theme.of(context).textTheme.displayMedium?.color,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                _buildCategoriesList(),
                 const SizedBox(height: 32),
                 _buildSectionTitle(
                   _searchQuery.isEmpty ? 'Trending Destinations' : 'Search Results', 
@@ -70,20 +84,6 @@ class _HomeScreenState extends State<HomeScreen> {
                   _buildHotelsList(),
                   const SizedBox(height: 32),
                 ],
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 24.0),
-                  child: Text(
-                    'Explore by Category',
-                    style: TextStyle(
-                      fontSize: 22,
-                      fontWeight: FontWeight.bold,
-                      color: Theme.of(context).textTheme.displayMedium?.color,
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 16),
-                _buildCategoriesList(),
-                const SizedBox(height: 40),
               ],
             ),
           ),
@@ -103,7 +103,7 @@ class _HomeScreenState extends State<HomeScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Where to?',
+                  'Turn Dreams Into Destinations',
                   style: TextStyle(
                     color: Theme.of(context).textTheme.bodyMedium?.color,
                     fontSize: 16,

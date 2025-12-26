@@ -39,26 +39,39 @@ class HotelCard extends StatelessWidget {
           children: [
             ClipRRect(
               borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-              child: CachedNetworkImage(
-                imageUrl: hotel.imageUrl,
-                height: 120,
-                width: 200,
-                fit: BoxFit.cover,
-                filterQuality: FilterQuality.high,
-                memCacheWidth: 400,
-                placeholder: (context, url) => Container(
-                  height: 120,
-                  width: 200,
-                  color: Theme.of(context).brightness == Brightness.dark ? Colors.white10 : Colors.grey[200],
-                  child: const Center(child: CircularProgressIndicator(strokeWidth: 2)),
-                ),
-                errorWidget: (context, url, error) => Container(
-                  height: 120,
-                  width: 200,
-                  color: Theme.of(context).brightness == Brightness.dark ? Colors.white10 : Colors.grey[300],
-                  child: const Icon(Icons.hotel, size: 40),
-                ),
-              ),
+              child: hotel.imageUrl.startsWith('http')
+                ? CachedNetworkImage(
+                    imageUrl: hotel.imageUrl,
+                    height: 120,
+                    width: 200,
+                    fit: BoxFit.cover,
+                    filterQuality: FilterQuality.high,
+                    memCacheWidth: 400,
+                    placeholder: (context, url) => Container(
+                      height: 120,
+                      width: 200,
+                      color: Theme.of(context).brightness == Brightness.dark ? Colors.white10 : Colors.grey[200],
+                      child: const Center(child: CircularProgressIndicator(strokeWidth: 2)),
+                    ),
+                    errorWidget: (context, url, error) => Container(
+                      height: 120,
+                      width: 200,
+                      color: Theme.of(context).brightness == Brightness.dark ? Colors.white10 : Colors.grey[300],
+                      child: const Icon(Icons.hotel, size: 40),
+                    ),
+                  )
+                : Image.asset(
+                    hotel.imageUrl,
+                    height: 120,
+                    width: 200,
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) => Container(
+                      height: 120,
+                      width: 200,
+                      color: Theme.of(context).brightness == Brightness.dark ? Colors.white10 : Colors.grey[300],
+                      child: const Icon(Icons.hotel, size: 40),
+                    ),
+                  ),
             ),
             Padding(
               padding: const EdgeInsets.all(12.0),

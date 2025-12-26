@@ -95,6 +95,9 @@ flutter:
   
   assets:
     - assets/images/
+    - assets/Hotels/
+    - assets/train/
+    - assets/
 
   
   

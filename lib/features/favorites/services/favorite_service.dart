@@ -1,12 +1,14 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:travel_tourism/core/services/offline_service.dart';
+import 'package:travel_tourism/features/destinations/models/destination.dart';
 
 class FavoriteService {
   final FirebaseFirestore _db = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
   // Toggle favorite: returns true if added, false if removed
-  Future<bool> toggleFavorite(String destinationId) async {
+  Future<bool> toggleFavorite(String destinationId, {Map<String, dynamic>? destinationData}) async {
     final user = _auth.currentUser;
     if (user == null) return false;
 
@@ -20,12 +22,18 @@ class FavoriteService {
 
     if (doc.exists) {
       await favoriteRef.delete();
+      // Update local cache
+      await OfflineService.removeFavorite(destinationId);
       return false;
     } else {
       await favoriteRef.set({
         'destinationId': destinationId,
         'addedAt': FieldValue.serverTimestamp(),
       });
+      // Update local cache if data is provided
+      if (destinationData != null) {
+        await OfflineService.addFavorite(destinationId, destinationData);
+      }
       return true;
     }
   }
@@ -40,7 +48,13 @@ class FavoriteService {
         .doc(user.uid)
         .collection('favorites')
         .snapshots()
-        .map((snapshot) => snapshot.docs.map((doc) => doc.id).toList());
+        .map((snapshot) {
+          final ids = snapshot.docs.map((doc) => doc.id).toList();
+          // We don't have the full data here to update Hive cache fully, 
+          // but we can ensure Hive matches the ID list if we only stored IDs.
+          // For now, we rely on toggleFavorite and full sync.
+          return ids;
+        });
   }
 
   // Check if a destination is favorited
@@ -55,6 +69,12 @@ class FavoriteService {
         .doc(destinationId)
         .snapshots()
         .map((doc) => doc.exists);
+  }
+
+  // Get cached favorites from Hive
+  List<Destination> getCachedFavorites() {
+    final cachedData = OfflineService.getCachedFavorites();
+    return cachedData.map((data) => Destination.fromFirestore(data, data['id'])).toList();
   }
 }
 

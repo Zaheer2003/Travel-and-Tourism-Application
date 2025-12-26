@@ -400,7 +400,10 @@ class _DetailScreenState extends State<DetailScreen> {
                           color: isFavorite ? Colors.red : Theme.of(context).iconTheme.color,
                         ),
                         onPressed: () async {
-                          final added = await _favoriteService.toggleFavorite(widget.destination.id);
+                          final added = await _favoriteService.toggleFavorite(
+                            widget.destination.id,
+                            destinationData: widget.destination.toMap(),
+                          );
                           if (mounted) {
                             ScaffoldMessenger.of(context).clearSnackBars();
                             ScaffoldMessenger.of(context).showSnackBar(

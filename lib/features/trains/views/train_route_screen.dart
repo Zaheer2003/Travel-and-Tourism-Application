@@ -39,26 +39,39 @@ class TrainRouteCard extends StatelessWidget {
           children: [
             ClipRRect(
               borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-              child: CachedNetworkImage(
-                imageUrl: route.imageUrl,
-                height: 150,
-                width: 280,
-                fit: BoxFit.cover,
-                filterQuality: FilterQuality.high,
-                memCacheWidth: 600,
-                placeholder: (context, url) => Container(
-                  height: 150,
-                  width: 280,
-                  color: Theme.of(context).brightness == Brightness.dark ? Colors.white10 : Colors.grey[200],
-                  child: const Center(child: CircularProgressIndicator(strokeWidth: 2)),
-                ),
-                errorWidget: (context, url, error) => Container(
-                  height: 150,
-                  width: 280,
-                  color: Colors.grey[200],
-                  child: const Icon(Icons.train, size: 50, color: Colors.grey),
-                ),
-              ),
+              child: route.imageUrl.startsWith('http')
+                ? CachedNetworkImage(
+                    imageUrl: route.imageUrl,
+                    height: 150,
+                    width: 280,
+                    fit: BoxFit.cover,
+                    filterQuality: FilterQuality.high,
+                    memCacheWidth: 600,
+                    placeholder: (context, url) => Container(
+                      height: 150,
+                      width: 280,
+                      color: Theme.of(context).brightness == Brightness.dark ? Colors.white10 : Colors.grey[200],
+                      child: const Center(child: CircularProgressIndicator(strokeWidth: 2)),
+                    ),
+                    errorWidget: (context, url, error) => Container(
+                      height: 150,
+                      width: 280,
+                      color: Colors.grey[200],
+                      child: const Icon(Icons.train, size: 50, color: Colors.grey),
+                    ),
+                  )
+                : Image.asset(
+                    route.imageUrl,
+                    height: 150,
+                    width: 280,
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) => Container(
+                      height: 150,
+                      width: 280,
+                      color: Colors.grey[200],
+                      child: const Icon(Icons.train, size: 50, color: Colors.grey),
+                    ),
+                  ),
             ),
             Padding(
               padding: const EdgeInsets.all(16.0),
@@ -104,20 +117,30 @@ class TrainRouteDetailScreen extends StatelessWidget {
             expandedHeight: 300,
             pinned: true,
             flexibleSpace: FlexibleSpaceBar(
-              background: CachedNetworkImage(
-                imageUrl: route.imageUrl,
-                fit: BoxFit.cover,
-                filterQuality: FilterQuality.high,
-                memCacheWidth: 1080,
-                placeholder: (context, url) => Container(
-                  color: Theme.of(context).brightness == Brightness.dark ? Colors.white10 : Colors.grey[200],
-                  child: const Center(child: CircularProgressIndicator(strokeWidth: 2)),
-                ),
-                errorWidget: (context, url, error) => Container(
-                  color: Colors.grey[300],
-                  child: const Icon(Icons.image_not_supported, size: 50),
-                ),
-              ),
+              background: route.imageUrl.startsWith('http')
+                ? CachedNetworkImage(
+                    imageUrl: route.imageUrl,
+                    fit: BoxFit.cover,
+                    filterQuality: FilterQuality.high,
+                    memCacheWidth: 1080,
+                    placeholder: (context, url) => Container(
+                      color: Theme.of(context).brightness == Brightness.dark ? Colors.white10 : Colors.grey[200],
+                      child: const Center(child: CircularProgressIndicator(strokeWidth: 2)),
+                    ),
+                    errorWidget: (context, url, error) => Container(
+                      color: Colors.grey[300],
+                      child: const Icon(Icons.image_not_supported, size: 50),
+                    ),
+                  )
+                : Image.asset(
+                    route.imageUrl,
+                    fit: BoxFit.cover,
+                    filterQuality: FilterQuality.high,
+                    errorBuilder: (context, error, stackTrace) => Container(
+                      color: Colors.grey[300],
+                      child: const Icon(Icons.image_not_supported, size: 50),
+                    ),
+                  ),
             ),
             leading: Padding(
               padding: const EdgeInsets.all(8.0),

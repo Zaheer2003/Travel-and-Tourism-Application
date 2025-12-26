@@ -30,6 +30,18 @@ class _ExploreScreenState extends State<ExploreScreen> {
     'Spiritual',
   ];
 
+  final Map<String, IconData> _categoryIcons = {
+    'All': Icons.grid_view_rounded,
+    'Beach': Icons.beach_access_rounded,
+    'Mountains': Icons.landscape_rounded,
+    'Nature': Icons.forest_rounded,
+    'Culture': Icons.castle_rounded,
+    'Hiking': Icons.hiking_rounded,
+    'History': Icons.history_edu_rounded,
+    'City': Icons.location_city_rounded,
+    'Spiritual': Icons.temple_buddhist_rounded,
+  };
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -93,6 +105,11 @@ class _ExploreScreenState extends State<ExploreScreen> {
                   return Padding(
                     padding: const EdgeInsets.only(right: 12),
                     child: FilterChip(
+                      avatar: Icon(
+                        _categoryIcons[category],
+                        size: 16,
+                        color: isSelected ? AppTheme.primaryColor : Colors.grey,
+                      ),
                       label: Text(category),
                       selected: isSelected,
                       onSelected: (selected) {

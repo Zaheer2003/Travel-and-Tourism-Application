@@ -21,24 +21,41 @@ class FavoritesScreen extends StatelessWidget {
         backgroundColor: Colors.transparent,
         elevation: 0,
         centerTitle: false,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.sync_rounded, color: AppTheme.primaryColor),
+            onPressed: () {
+               // Force a rebuild or sync if needed
+               (context as Element).markNeedsBuild();
+            },
+          ),
+        ],
       ),
       body: StreamBuilder<List<String>>(
         stream: favoriteService.getFavoriteIds(),
         builder: (context, favSnapshot) {
-          if (favSnapshot.connectionState == ConnectionState.waiting) {
+          // Check cache first for immediate display or offline
+          final cachedFavorites = favoriteService.getCachedFavorites();
+
+          if (favSnapshot.connectionState == ConnectionState.waiting && cachedFavorites.isEmpty) {
             return _buildSkeletonGrid();
+          }
+
+          if (favSnapshot.hasError || (favSnapshot.data == null && cachedFavorites.isNotEmpty)) {
+            // Show cached if offline/error
+            return _buildGrid(cachedFavorites);
           }
 
           final favoriteIds = favSnapshot.data ?? [];
 
-          if (favoriteIds.isEmpty) {
+          if (favoriteIds.isEmpty && cachedFavorites.isEmpty) {
             return _buildEmptyState();
           }
 
           return StreamBuilder<List<Destination>>(
             stream: dbService.destinations,
             builder: (context, destSnapshot) {
-              if (destSnapshot.connectionState == ConnectionState.waiting) {
+              if (destSnapshot.connectionState == ConnectionState.waiting && cachedFavorites.isEmpty) {
                 return _buildSkeletonGrid();
               }
 
@@ -47,23 +64,38 @@ class FavoritesScreen extends StatelessWidget {
                   .where((d) => favoriteIds.contains(d.id))
                   .toList();
 
-              return GridView.builder(
-                padding: const EdgeInsets.all(24),
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
-                  childAspectRatio: 0.7,
-                  crossAxisSpacing: 20,
-                  mainAxisSpacing: 20,
-                ),
-                itemCount: favoriteDestinations.length,
-                itemBuilder: (context, index) {
-                  return DestinationCard(destination: favoriteDestinations[index]);
-                },
-              );
+              // If stream is empty but we have IDs, or offline, fallback to cache
+              if (favoriteDestinations.isEmpty && cachedFavorites.isNotEmpty) {
+                return _buildGrid(cachedFavorites);
+              }
+
+              if (favoriteDestinations.isEmpty && !favSnapshot.hasData) {
+                 return _buildEmptyState();
+              }
+
+              return _buildGrid(favoriteDestinations);
             },
           );
         },
       ),
+    );
+  }
+
+  Widget _buildGrid(List<Destination> destinations) {
+    if (destinations.isEmpty) return _buildEmptyState();
+    
+    return GridView.builder(
+      padding: const EdgeInsets.all(24),
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 2,
+        childAspectRatio: 0.7,
+        crossAxisSpacing: 20,
+        mainAxisSpacing: 20,
+      ),
+      itemCount: destinations.length,
+      itemBuilder: (context, index) {
+        return DestinationCard(destination: destinations[index]);
+      },
     );
   }
 

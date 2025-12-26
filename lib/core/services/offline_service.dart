@@ -19,21 +19,35 @@ class OfflineService {
   }
 
   // Favorites Cache
+  static Future<void> addFavorite(String id, Map<String, dynamic> data) async {
+    final box = Hive.box(favoritesBoxName);
+    await box.put(id, data);
+  }
+
+  static Future<void> removeFavorite(String id) async {
+    final box = Hive.box(favoritesBoxName);
+    await box.delete(id);
+  }
+
   static Future<void> cacheFavorites(List<dynamic> favorites) async {
     final box = Hive.box(favoritesBoxName);
     await box.clear();
     for (var item in favorites) {
       if (item is Destination) {
-        await box.put('dest_${item.id}', item.toMap());
+        await box.put(item.id, item.toMap());
       } else if (item is Hotel) {
-        await box.put('hotel_${item.id}', item.toMap());
+        await box.put(item.id, item.toMap());
       }
     }
   }
 
   static List<Map<String, dynamic>> getCachedFavorites() {
     final box = Hive.box(favoritesBoxName);
-    return box.values.cast<Map<String, dynamic>>().toList();
+    return box.keys.map((key) {
+      final data = Map<String, dynamic>.from(box.get(key));
+      data['id'] = key.toString();
+      return data;
+    }).toList();
   }
 
   // Bookings Cache

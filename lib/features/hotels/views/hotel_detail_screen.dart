@@ -486,15 +486,25 @@ class _HotelDetailScreenState extends State<HotelDetailScreen> {
                   ),
                 ],
                 flexibleSpace: FlexibleSpaceBar(
-                  background: Image.network(
-                    widget.hotel.imageUrl,
-                    fit: BoxFit.cover,
-                    filterQuality: FilterQuality.high,
-                    errorBuilder: (context, error, stackTrace) => Container(
-                      color: Theme.of(context).brightness == Brightness.dark ? Colors.white10 : Colors.grey[200],
-                      child: Icon(Icons.hotel, size: 100, color: Theme.of(context).brightness == Brightness.dark ? Colors.white24 : Colors.grey),
-                    ),
-                  ),
+                  background: widget.hotel.imageUrl.startsWith('http')
+                    ? Image.network(
+                        widget.hotel.imageUrl,
+                        fit: BoxFit.cover,
+                        filterQuality: FilterQuality.high,
+                        errorBuilder: (context, error, stackTrace) => Container(
+                          color: Theme.of(context).brightness == Brightness.dark ? Colors.white10 : Colors.grey[200],
+                          child: Icon(Icons.hotel, size: 100, color: Theme.of(context).brightness == Brightness.dark ? Colors.white24 : Colors.grey),
+                        ),
+                      )
+                    : Image.asset(
+                        widget.hotel.imageUrl,
+                        fit: BoxFit.cover,
+                        filterQuality: FilterQuality.high,
+                        errorBuilder: (context, error, stackTrace) => Container(
+                          color: Theme.of(context).brightness == Brightness.dark ? Colors.white10 : Colors.grey[200],
+                          child: Icon(Icons.hotel, size: 100, color: Theme.of(context).brightness == Brightness.dark ? Colors.white24 : Colors.grey),
+                        ),
+                      ),
                 ),
               ),
               SliverToBoxAdapter(
@@ -669,14 +679,26 @@ class _HotelDetailScreenState extends State<HotelDetailScreen> {
   Widget _buildAmenityChip(BuildContext context, String label) {
     IconData icon;
     switch (label.toLowerCase()) {
-      case 'spa': icon = Icons.spa_outlined; break;
-      case 'pool': icon = Icons.pool_outlined; break;
+      case 'spa': case 'ayurvedic spa': case 'luxury spa': icon = Icons.spa_outlined; break;
+      case 'pool': case 'infinity pool': case 'rooftop pool': case 'heated pool': case 'oceanfront pool': icon = Icons.pool_outlined; break;
       case 'gym': icon = Icons.fitness_center_outlined; break;
       case 'forest view': icon = Icons.forest_outlined; break;
-      case 'mountain view': icon = Icons.terrain_outlined; break;
-      case 'safari': icon = Icons.pets_outlined; break;
-      case 'luxury tents': icon = Icons.home_outlined; break;
-      case 'gourmet dining': icon = Icons.restaurant_outlined; break;
+      case 'mountain view': case 'panoramic views': icon = Icons.terrain_outlined; break;
+      case 'ocean view': case 'sea view': case 'beachfront': case 'beach chalets': case 'ocean views': icon = Icons.beach_access_outlined; break;
+      case 'city view': case 'city views': case 'city center': icon = Icons.location_city_outlined; break;
+      case 'lake view': icon = Icons.water_outlined; break;
+      case 'casino': icon = Icons.casino_outlined; break;
+      case 'golf': case 'golf course': icon = Icons.golf_course_outlined; break;
+      case 'wine bar': case 'rooftop bar': case 'pool bar': case 'historical bar': case 'chequers bar': case 'sky lounge': case 'nightclub': icon = Icons.local_bar_outlined; break;
+      case 'fine dining': case 'gourmet dining': case 'cultural dining': case 'seafood': case 'jaffna cuisine': case '7 restaurants': icon = Icons.restaurant_outlined; break;
+      case 'billiards room': icon = Icons.sports_esports_outlined; break;
+      case 'museum': icon = Icons.museum_outlined; break;
+      case 'luxury mall': icon = Icons.shopping_bag_outlined; break;
+      case 'high tea': case 'heritage tea room': icon = Icons.coffee_outlined; break;
+      case 'dolphin watching': case 'whale watching': icon = Icons.visibility_outlined; break;
+      case 'water sports': case 'dive center': case 'underwater spa': icon = Icons.scuba_diving_outlined; break;
+      case 'rooftop deck': icon = Icons.deck_outlined; break;
+      case 'colonial architecture': case 'colonial suites': case 'traditional decor': case 'retro design': case 'beach villas': case 'modern rooms': case 'cultural theme': icon = Icons.architecture_outlined; break;
       default: icon = Icons.check_circle_outline;
     }
 
