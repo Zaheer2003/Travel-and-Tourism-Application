@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:travel_tourism/features/hotels/models/hotel.dart';
 import 'package:travel_tourism/core/theme/app_theme.dart';
 import 'package:travel_tourism/features/hotels/views/hotel_detail_screen.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 class HotelCard extends StatelessWidget {
   final Hotel hotel;
@@ -38,13 +39,20 @@ class HotelCard extends StatelessWidget {
           children: [
             ClipRRect(
               borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-              child: Image.network(
-                hotel.imageUrl,
+              child: CachedNetworkImage(
+                imageUrl: hotel.imageUrl,
                 height: 120,
                 width: 200,
                 fit: BoxFit.cover,
                 filterQuality: FilterQuality.high,
-                errorBuilder: (context, error, stackTrace) => Container(
+                memCacheWidth: 400,
+                placeholder: (context, url) => Container(
+                  height: 120,
+                  width: 200,
+                  color: Theme.of(context).brightness == Brightness.dark ? Colors.white10 : Colors.grey[200],
+                  child: const Center(child: CircularProgressIndicator(strokeWidth: 2)),
+                ),
+                errorWidget: (context, url, error) => Container(
                   height: 120,
                   width: 200,
                   color: Theme.of(context).brightness == Brightness.dark ? Colors.white10 : Colors.grey[300],

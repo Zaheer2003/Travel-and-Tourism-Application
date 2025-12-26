@@ -3,6 +3,7 @@ import 'package:travel_tourism/features/destinations/models/destination.dart';
 import 'package:travel_tourism/core/theme/app_theme.dart';
 import 'package:travel_tourism/features/destinations/views/detail_screen.dart';
 import 'package:travel_tourism/features/favorites/services/favorite_service.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 class DestinationCard extends StatelessWidget {
   final Destination destination;
@@ -39,13 +40,20 @@ class DestinationCard extends StatelessWidget {
             ClipRRect(
               borderRadius: BorderRadius.circular(24),
               child: destination.imageUrl.startsWith('http')
-                  ? Image.network(
-                      destination.imageUrl,
+                  ? CachedNetworkImage(
+                      imageUrl: destination.imageUrl,
                       height: 400,
                       width: 280,
                       fit: BoxFit.cover,
                       filterQuality: FilterQuality.high,
-                      errorBuilder: (context, error, stackTrace) => Container(
+                      memCacheWidth: 600, // Optimize memory but keep crisp
+                      placeholder: (context, url) => Container(
+                        height: 400,
+                        width: 280,
+                        color: Theme.of(context).brightness == Brightness.dark ? Colors.white10 : Colors.grey[200],
+                        child: const Center(child: CircularProgressIndicator(strokeWidth: 2)),
+                      ),
+                      errorWidget: (context, url, error) => Container(
                         height: 400,
                         width: 280,
                         color: Theme.of(context).brightness == Brightness.dark ? Colors.white10 : Colors.grey[300],

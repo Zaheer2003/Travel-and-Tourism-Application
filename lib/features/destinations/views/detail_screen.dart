@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:intl/intl.dart';
 import 'package:travel_tourism/features/destinations/models/destination.dart';
@@ -340,11 +341,16 @@ class _DetailScreenState extends State<DetailScreen> {
             right: 0,
             height: 500,
             child: widget.destination.imageUrl.startsWith('http')
-                ? Image.network(
-                    widget.destination.imageUrl,
+                ? CachedNetworkImage(
+                    imageUrl: widget.destination.imageUrl,
                     fit: BoxFit.cover,
                     filterQuality: FilterQuality.high,
-                    errorBuilder: (context, error, stackTrace) => Container(
+                    memCacheWidth: 1080, // Higher res for detail page
+                    placeholder: (context, url) => Container(
+                      color: Theme.of(context).brightness == Brightness.dark ? Colors.white10 : Colors.grey[200],
+                      child: const Center(child: CircularProgressIndicator(strokeWidth: 2)),
+                    ),
+                    errorWidget: (context, url, error) => Container(
                       color: Theme.of(context).brightness == Brightness.dark ? Colors.white10 : Colors.grey[300],
                       child: const Icon(Icons.image_not_supported, size: 50),
                     ),

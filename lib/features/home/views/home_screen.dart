@@ -36,48 +36,56 @@ class _HomeScreenState extends State<HomeScreen> {
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: SafeArea(
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _buildHeader(user, context),
-              _buildSearchBar(),
-              const SizedBox(height: 32),
-              _buildSectionTitle(
-                _searchQuery.isEmpty ? 'Trending Destinations' : 'Search Results', 
-                'See all',
-                onActionTap: () {
-                   // Optional: Navigate to see all destinations
-                },
-              ),
-              const SizedBox(height: 16),
-              _buildDestinationsList(),
-              const SizedBox(height: 32),
-              if (_searchQuery.isEmpty) ...[
-                _buildSectionTitle('Iconic Train Routes', 'Explore'),
-                const SizedBox(height: 16),
-                _buildTrainsList(),
+        child: RefreshIndicator(
+          onRefresh: () async {
+            await _db.uploadInitialData();
+            setState(() {}); // Trigger rebuild
+          },
+          color: AppTheme.primaryColor,
+          child: SingleChildScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _buildHeader(user, context),
+                _buildSearchBar(),
                 const SizedBox(height: 32),
-                _buildSectionTitle('Top Hotels', 'See all'),
+                _buildSectionTitle(
+                  _searchQuery.isEmpty ? 'Trending Destinations' : 'Search Results', 
+                  'See all',
+                  onActionTap: () {
+                     // Optional: Navigate to see all destinations
+                  },
+                ),
                 const SizedBox(height: 16),
-                _buildHotelsList(),
+                _buildDestinationsList(),
                 const SizedBox(height: 32),
-              ],
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24.0),
-                child: Text(
-                  'Explore by Category',
-                  style: TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.bold,
-                    color: Theme.of(context).textTheme.displayMedium?.color,
+                if (_searchQuery.isEmpty) ...[
+                  _buildSectionTitle('Iconic Train Routes', 'Explore'),
+                  const SizedBox(height: 16),
+                  _buildTrainsList(),
+                  const SizedBox(height: 32),
+                  _buildSectionTitle('Top Hotels', 'See all'),
+                  const SizedBox(height: 16),
+                  _buildHotelsList(),
+                  const SizedBox(height: 32),
+                ],
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                  child: Text(
+                    'Explore by Category',
+                    style: TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                      color: Theme.of(context).textTheme.displayMedium?.color,
+                    ),
                   ),
                 ),
-              ),
-              const SizedBox(height: 16),
-              _buildCategoriesList(),
-              const SizedBox(height: 40),
-            ],
+                const SizedBox(height: 16),
+                _buildCategoriesList(),
+                const SizedBox(height: 40),
+              ],
+            ),
           ),
         ),
       ),

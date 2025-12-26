@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:travel_tourism/core/database_service.dart';
 import 'package:travel_tourism/core/theme/app_theme.dart';
 import 'package:travel_tourism/features/trains/models/train_route.dart';
@@ -38,13 +39,20 @@ class TrainRouteCard extends StatelessWidget {
           children: [
             ClipRRect(
               borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-              child: Image.network(
-                route.imageUrl,
+              child: CachedNetworkImage(
+                imageUrl: route.imageUrl,
                 height: 150,
                 width: 280,
                 fit: BoxFit.cover,
                 filterQuality: FilterQuality.high,
-                errorBuilder: (context, error, stackTrace) => Container(
+                memCacheWidth: 600,
+                placeholder: (context, url) => Container(
+                  height: 150,
+                  width: 280,
+                  color: Theme.of(context).brightness == Brightness.dark ? Colors.white10 : Colors.grey[200],
+                  child: const Center(child: CircularProgressIndicator(strokeWidth: 2)),
+                ),
+                errorWidget: (context, url, error) => Container(
                   height: 150,
                   width: 280,
                   color: Colors.grey[200],
@@ -96,10 +104,19 @@ class TrainRouteDetailScreen extends StatelessWidget {
             expandedHeight: 300,
             pinned: true,
             flexibleSpace: FlexibleSpaceBar(
-              background: Image.network(
-                route.imageUrl,
+              background: CachedNetworkImage(
+                imageUrl: route.imageUrl,
                 fit: BoxFit.cover,
                 filterQuality: FilterQuality.high,
+                memCacheWidth: 1080,
+                placeholder: (context, url) => Container(
+                  color: Theme.of(context).brightness == Brightness.dark ? Colors.white10 : Colors.grey[200],
+                  child: const Center(child: CircularProgressIndicator(strokeWidth: 2)),
+                ),
+                errorWidget: (context, url, error) => Container(
+                  color: Colors.grey[300],
+                  child: const Icon(Icons.image_not_supported, size: 50),
+                ),
               ),
             ),
             leading: Padding(

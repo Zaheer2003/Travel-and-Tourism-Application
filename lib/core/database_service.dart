@@ -1,3 +1,6 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:travel_tourism/features/destinations/models/destination.dart';
+import 'package:travel_tourism/features/hotels/models/hotel.dart';
 import 'package:travel_tourism/features/trains/models/train_route.dart';
 
 class DatabaseService {
@@ -49,10 +52,12 @@ class DatabaseService {
   Future<void> uploadInitialData() async {
     if (_isUploading) return;
     _isUploading = true;
+    print('DATABASE: Starting initial data sync...');
     try {
-      await uploadDestinations();
-      await uploadHotels();
-      await uploadTrainRoutes();
+      await uploadDestinations().catchError((e) => print('Error in destinations: $e'));
+      await uploadHotels().catchError((e) => print('Error in hotels: $e'));
+      await uploadTrainRoutes().catchError((e) => print('Error in train routes: $e'));
+      print('DATABASE: Initial data sync completed.');
     } catch (e) {
       print('⚠️ Database initialization warning: $e');
     } finally {
@@ -79,7 +84,7 @@ class DatabaseService {
           id: '',
           name: 'Sigiriya',
           location: 'Central Province',
-          imageUrl: 'https://images.unsplash.com/photo-1588258524675-55d6563e4678?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=100',
+          imageUrl: 'https://images.unsplash.com/photo-1588258524675-55d6563e4678?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=100&dpr=2',
           description: 'Ancient rock fortress designated as a UNESCO World Heritage Site.',
           price: 159,
           rating: 4.9,
@@ -91,7 +96,7 @@ class DatabaseService {
           id: '',
           name: 'Ella',
           location: 'Uva Province',
-          imageUrl: 'https://images.unsplash.com/photo-1587595431973-160d0d94add1?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=100',
+          imageUrl: 'https://images.unsplash.com/photo-1587595431973-160d0d94add1?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=100&dpr=2',
           description: 'Scenic mountain village famous for the Nine Arch Bridge and tea plantations.',
           price: 120,
           rating: 4.8,
@@ -103,7 +108,7 @@ class DatabaseService {
           id: '',
           name: 'Kandy',
           location: 'Central Province',
-          imageUrl: 'https://images.unsplash.com/photo-1546708973-b339540b5162?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=100',
+          imageUrl: 'https://images.unsplash.com/photo-1546708973-b339540b5162?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=100&dpr=2',
           description: 'The cultural capital of Sri Lanka, home to the Temple of the Tooth Relic.',
           price: 130,
           rating: 4.7,
@@ -115,7 +120,7 @@ class DatabaseService {
           id: '',
           name: 'Adam\'s Peak',
           location: 'Sabaragamuwa',
-          imageUrl: 'https://images.unsplash.com/photo-1621601730030-22c7f4802c61?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=100',
+          imageUrl: 'https://images.unsplash.com/photo-1621601730030-22c7f4802c61?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=100&dpr=2',
           description: 'A sacred mountain popular for its sunrise climbs and amazing views.',
           price: 80,
           rating: 4.9,
@@ -127,7 +132,7 @@ class DatabaseService {
           id: '',
           name: 'Trincomalee',
           location: 'Eastern Province',
-          imageUrl: 'https://images.unsplash.com/photo-1588001646270-e4b52ffda2e3?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=100',
+          imageUrl: 'https://images.unsplash.com/photo-1588001646270-e4b52ffda2e3?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=100&dpr=2',
           description: 'Deep natural harbor and pristine white sandy beaches.',
           price: 150,
           rating: 4.6,
@@ -139,7 +144,7 @@ class DatabaseService {
           id: '',
           name: 'Polonnaruwa',
           location: 'North Central',
-          imageUrl: 'https://images.unsplash.com/photo-1627916607164-7b20241db935?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=100',
+          imageUrl: 'https://images.unsplash.com/photo-1627916607164-7b20241db935?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=100&dpr=2',
           description: 'The medieval capital of Sri Lanka with well-preserved ruins.',
           price: 110,
           rating: 4.7,
@@ -167,7 +172,7 @@ class DatabaseService {
           id: '',
           name: 'Heritance Kandalama',
           location: 'Dambulla',
-          imageUrl: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=100',
+          imageUrl: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=100&dpr=2',
           pricePerNight: 250,
           rating: 4.8,
           amenities: ['Spa', 'Pool', 'Forest View'],
@@ -177,7 +182,7 @@ class DatabaseService {
           id: '',
           name: 'Cinnamon Bentota Beach',
           location: 'Bentota',
-          imageUrl: 'https://images.unsplash.com/photo-1571896349842-33c89424de4d?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=100',
+          imageUrl: 'https://images.unsplash.com/photo-1571896349842-33c89424de4d?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=100&dpr=2',
           pricePerNight: 280,
           rating: 4.7,
           amenities: ['Private Beach', 'Water Sports', 'Pool'],
@@ -187,7 +192,7 @@ class DatabaseService {
           id: '',
           name: 'The Fortress Resort',
           location: 'Galle',
-          imageUrl: 'https://images.unsplash.com/photo-1540541338287-41700207dee6?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=100',
+          imageUrl: 'https://images.unsplash.com/photo-1540541338287-41700207dee6?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=100&dpr=2',
           pricePerNight: 350,
           rating: 4.9,
           amenities: ['Ocean View', 'Ayurvedic Spa', 'Gourmet Dining'],
@@ -205,19 +210,22 @@ class DatabaseService {
 
   Future<void> uploadTrainRoutes() async {
     try {
-      print('DEBUG: Checking for train routes...');
+      print('DEBUG: Checking train_routes collection...');
       final snapshot = await trainCollection.get();
-      print('DEBUG: Found ${snapshot.docs.length} train routes in Firestore');
       
-      if (snapshot.docs.isNotEmpty) return;
+      if (snapshot.docs.isNotEmpty) {
+        print('DEBUG: Train routes already exist (${snapshot.docs.length}).');
+        return;
+      }
 
-      print('DEBUG: Collection empty. Uploading dummy trains...');
+      print('DEBUG: No train routes found. Creating initial routes...');
+      List<TrainRoute> dummyTrains = [
         TrainRoute(
           id: '',
           name: 'The Main Line (Podi Menike)',
           from: 'Colombo Fort',
           to: 'Badulla / Ella',
-          imageUrl: 'https://images.unsplash.com/photo-1589139366408-9df8354c0e64?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=100',
+          imageUrl: 'https://images.unsplash.com/photo-1589139366408-9df8354c0e64?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=100&dpr=2',
           description: 'Considered one of the most scenic train rides in the world through misty mountains and tea estates.',
           schedule: ['05:55 AM (Morning Express)', '08:30 AM (Udarata Menike)', '20:00 PM (Night Mail)'],
           bookingUrl: 'https://seatreservation.railway.gov.lk/',
@@ -227,7 +235,7 @@ class DatabaseService {
           name: 'Coastal Line',
           from: 'Colombo Fort',
           to: 'Galle / Matara',
-          imageUrl: 'https://images.unsplash.com/photo-1587595431973-160d0d94add1?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=100', // Reusing Ella for now or search
+          imageUrl: 'https://images.unsplash.com/photo-1490237014491-8aa298105fc3?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=100&dpr=2',
           description: 'A beautiful journey along the southwest coast, literally meters from the ocean waves.',
           schedule: ['06:50 AM (Sagarika)', '10:30 AM (Galu Kumari)', '15:10 PM (Express)'],
           bookingUrl: 'https://seatreservation.railway.gov.lk/',
@@ -237,7 +245,7 @@ class DatabaseService {
           name: 'Yal Devi (Northern Line)',
           from: 'Colombo Fort',
           to: 'Jaffna',
-          imageUrl: 'https://images.unsplash.com/photo-1627915607164-7b20241db935?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=100',
+          imageUrl: 'https://images.unsplash.com/photo-1627916607164-7b20241db935?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=100&dpr=2',
           description: 'The legendary express train connecting the capital with the vibrant northern capital of Jaffna.',
           schedule: ['05:45 AM (Express)', '06:35 AM (Intercity)', '13:15 PM (Express)'],
           bookingUrl: 'https://seatreservation.railway.gov.lk/',
@@ -246,9 +254,11 @@ class DatabaseService {
 
       for (var train in dummyTrains) {
         await trainCollection.add(train.toMap());
+        print('DEBUG: Added train route: ${train.name}');
       }
+      print('✅ All train routes uploaded successfully!');
     } catch (e) {
-      print('Error: $e');
+      print('❌ Error in uploadTrainRoutes: $e');
     }
   }
 }

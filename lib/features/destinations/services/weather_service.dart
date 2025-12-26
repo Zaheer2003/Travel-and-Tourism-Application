@@ -32,29 +32,28 @@ class WeatherService {
 
   Future<WeatherData?> getWeather(String location) async {
     try {
-      // First, get the current weather
-      final currentResponse = await http.get(
-        Uri.parse('https://api.openweathermap.org/data/2.5/weather?q=$location,LK&appid=$apiKey&units=metric'),
-      );
+      final String encodedLocation = Uri.encodeComponent('$location,LK');
+      final String url = 'https://api.openweathermap.org/data/2.5/weather?q=$encodedLocation&appid=$apiKey&units=metric';
+      
+      print('DEBUG: Weather - Fetching for $location...');
+      final response = await http.get(Uri.parse(url));
 
-      if (currentResponse.statusCode == 200) {
-        final data = json.decode(currentResponse.statusCode == 200 ? currentResponse.body : '');
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
         
-        // OpenWeather Free API doesn't always include easy hourly in 2.5 without a separate call
-        // For a clean demo, we'll use the main data and mock the hourly part from it
-        // as the 5-day/3-hour forecast is a different endpoint.
+        final double currentTemp = (data['main']['temp'] ?? 0.0).toDouble();
+        final String condition = data['weather'][0]['main'] ?? 'Clear';
         
-        final double currentTemp = data['main']['temp'].toDouble();
-        final String condition = data['weather'][0]['main'];
-        final String iconCode = data['weather'][0]['icon'];
-
         // Generating mock hourly based on current for UI consistency
         List<HourlyForecast> hourly = List.generate(3, (index) {
-          final hour = DateTime.now().hour + index + 1;
+          final hour = (DateTime.now().hour + index + 1) % 24;
+          final String period = hour >= 12 ? 'PM' : 'AM';
+          final int displayHour = hour > 12 ? hour - 12 : (hour == 0 ? 12 : hour);
+          
           return HourlyForecast(
-            time: '${hour > 12 ? hour - 12 : hour} ${hour >= 12 ? 'PM' : 'AM'}',
+            time: '$displayHour $period',
             temp: currentTemp + (index * 0.5),
-            icon: iconCode,
+            icon: _getIconForCondition(condition),
           );
         });
 
@@ -64,9 +63,11 @@ class WeatherService {
           icon: _getIconForCondition(condition),
           hourly: hourly,
         );
+      } else {
+        print('DEBUG: Weather - API Error ${response.statusCode}: ${response.body}');
       }
     } catch (e) {
-      print('Weather Error: $e');
+      print('DEBUG: Weather - Exception: $e');
     }
     return null;
   }
