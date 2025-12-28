@@ -45,7 +45,7 @@ class TravelApp extends ConsumerWidget {
     );
 
     return MaterialApp(
-      title: 'Travel & Tourism',
+      title: 'Tripzy',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,

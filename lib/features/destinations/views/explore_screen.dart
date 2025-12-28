@@ -105,50 +105,52 @@ class _ExploreScreenState extends State<ExploreScreen> {
             ),
             const SizedBox(height: 24),
             // Category Filter
-            SizedBox(
-              height: 48,
-              child: ListView.builder(
-                scrollDirection: Axis.horizontal,
-                padding: const EdgeInsets.only(left: 24, right: 8),
-                itemCount: _categories.length,
-                itemBuilder: (context, index) {
-                  final category = _categories[index];
+            SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              padding: const EdgeInsets.only(left: 24, right: 8),
+              child: Row(
+                children: _categories.map((category) {
                   final isSelected = _selectedCategory == category;
-                  return Padding(
-                    padding: const EdgeInsets.only(right: 12),
-                    child: FilterChip(
-                      avatar: Icon(
-                        _categoryIcons[category],
-                        size: 16,
-                        color: isSelected ? AppTheme.primaryColor : Colors.grey,
+                  return GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        _selectedCategory = category;
+                      });
+                    },
+                    child: Container(
+                      margin: const EdgeInsets.only(right: 16),
+                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                      decoration: BoxDecoration(
+                        color: isSelected ? AppTheme.primaryColor : Theme.of(context).cardColor,
+                        borderRadius: BorderRadius.circular(16),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(Theme.of(context).brightness == Brightness.dark ? 0.2 : 0.03),
+                            blurRadius: 10,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
                       ),
-                      label: Text(category),
-                      selected: isSelected,
-                      onSelected: (selected) {
-                        setState(() {
-                          _selectedCategory = category;
-                        });
-                      },
-                      backgroundColor: Theme.of(context).cardColor,
-                      selectedColor: AppTheme.primaryColor.withOpacity(0.2),
-                      checkmarkColor: AppTheme.primaryColor,
-                      labelStyle: TextStyle(
-                        color: isSelected 
-                          ? AppTheme.primaryColor 
-                          : Theme.of(context).textTheme.bodyLarge?.color,
-                        fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                      ),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        side: BorderSide(
-                          color: isSelected 
-                            ? AppTheme.primaryColor 
-                            : Colors.transparent,
-                        ),
+                      child: Row(
+                        children: [
+                          Icon(
+                            _categoryIcons[category],
+                            size: 20,
+                            color: isSelected ? Colors.white : AppTheme.primaryColor,
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            category,
+                            style: TextStyle(
+                              fontWeight: FontWeight.w600,
+                              color: isSelected ? Colors.white : Theme.of(context).textTheme.bodyLarge?.color,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   );
-                },
+                }).toList(),
               ),
             ),
             const SizedBox(height: 8),

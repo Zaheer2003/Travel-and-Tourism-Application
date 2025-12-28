@@ -64,6 +64,8 @@ dependencies:
   json_annotation: ^4.9.0
   http: ^1.6.0
   cached_network_image: ^3.4.1
+  url_launcher: ^6.3.2
+  google_fonts: ^6.3.3
 
 dev_dependencies:
   flutter_test:
@@ -80,6 +82,7 @@ dev_dependencies:
   riverpod_generator: ^2.6.2
   freezed: ^2.5.7
   json_serializable: ^6.8.0
+  flutter_launcher_icons: ^0.14.4
 
 
 

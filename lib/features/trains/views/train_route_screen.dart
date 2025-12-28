@@ -3,6 +3,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:travel_tourism/core/database_service.dart';
 import 'package:travel_tourism/core/theme/app_theme.dart';
 import 'package:travel_tourism/features/trains/models/train_route.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class TrainRouteCard extends StatelessWidget {
   final TrainRoute route;
@@ -258,8 +259,17 @@ class TrainRouteDetailScreen extends StatelessWidget {
                     width: double.infinity,
                     height: 56,
                     child: ElevatedButton(
-                      onPressed: () {
-                        // URL Launcher could be added here
+                      onPressed: () async {
+                        try {
+                          final Uri url = Uri.parse(route.bookingUrl);
+                          await launchUrl(url, mode: LaunchMode.externalApplication);
+                        } catch (e) {
+                          if (context.mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text('Could not open booking page: $e')),
+                            );
+                          }
+                        }
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppTheme.primaryColor,

@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:travel_tourism/features/auth/services/auth_service.dart';
 import 'package:travel_tourism/core/theme/app_theme.dart';
 
@@ -56,6 +57,7 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      extendBodyBehindAppBar: true,
       body: Stack(
         children: [
           // Background PageView
@@ -90,6 +92,16 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
             ),
           ),
+          // Logo at top
+          Positioned(
+            top: 48,
+            left: 16,
+            child: Image.asset(
+              'assets/images/WhiteLogo.png',
+               height: 80,
+              fit: BoxFit.contain,
+            ),
+          ),
           // Content
           SafeArea(
             child: Padding(
@@ -98,6 +110,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 mainAxisAlignment: MainAxisAlignment.end,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+
                   RichText(
                     text: TextSpan(
                       style: const TextStyle(
