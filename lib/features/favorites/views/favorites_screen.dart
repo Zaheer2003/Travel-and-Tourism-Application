@@ -94,7 +94,7 @@ class FavoritesScreen extends StatelessWidget {
       ),
       itemCount: destinations.length,
       itemBuilder: (context, index) {
-        return DestinationCard(destination: destinations[index]);
+        return DestinationCard(destination: destinations[index], width: null);
       },
     );
   }

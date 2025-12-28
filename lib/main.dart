@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:travel_tourism/core/theme/app_theme.dart';
@@ -32,6 +33,17 @@ class TravelApp extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final isDarkMode = ref.watch(themeNotifierProvider);
     
+    // Apply status bar color globally based on theme
+    SystemChrome.setSystemUIOverlayStyle(
+      SystemUiOverlayStyle(
+        statusBarColor: Colors.transparent, // Transparent status bar
+        statusBarIconBrightness: isDarkMode ? Brightness.light : Brightness.dark, // Icon color
+        statusBarBrightness: isDarkMode ? Brightness.dark : Brightness.light, // iOS status bar
+        systemNavigationBarColor: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white, // Navigation bar color
+        systemNavigationBarIconBrightness: isDarkMode ? Brightness.light : Brightness.dark, // Navigation bar icons
+      ),
+    );
+
     return MaterialApp(
       title: 'Travel & Tourism',
       debugShowCheckedModeBanner: false,

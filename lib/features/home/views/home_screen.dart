@@ -13,6 +13,7 @@ import 'package:travel_tourism/features/trains/views/train_route_screen.dart';
 import 'package:travel_tourism/features/trains/models/train_route.dart';
 import 'package:travel_tourism/features/destinations/views/explore_screen.dart';
 import 'package:travel_tourism/features/hotels/views/hotel_list_screen.dart';
+import 'package:travel_tourism/features/trains/views/train_list_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   HomeScreen({super.key});
@@ -80,7 +81,15 @@ class _HomeScreenState extends State<HomeScreen> {
                 _buildDestinationsList(),
                 const SizedBox(height: 32),
                 if (_searchQuery.isEmpty) ...[
-                  _buildSectionTitle('Iconic Train Routes', 'Explore'),
+                  _buildSectionTitle(
+                    'Iconic Train Routes', 'Explore',
+                    onActionTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => const TrainListScreen()),
+                      );
+                    },
+                  ),
                   const SizedBox(height: 16),
                   _buildTrainsList(),
                   const SizedBox(height: 32),

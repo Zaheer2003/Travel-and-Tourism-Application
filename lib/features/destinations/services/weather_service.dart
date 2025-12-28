@@ -30,12 +30,17 @@ class HourlyForecast {
 class WeatherService {
   final String apiKey = '659650949c7735ded689c3208ca127f7';
 
-  Future<WeatherData?> getWeather(String location) async {
+  Future<WeatherData?> getWeather(String location, {double? lat, double? lng}) async {
     try {
-      final String encodedLocation = Uri.encodeComponent('$location,LK');
-      final String url = 'https://api.openweathermap.org/data/2.5/weather?q=$encodedLocation&appid=$apiKey&units=metric';
-      
-      print('DEBUG: Weather - Fetching for $location...');
+      String url;
+      if (lat != null && lng != null && lat != 0 && lng != 0) {
+        url = 'https://api.openweathermap.org/data/2.5/weather?lat=$lat&lon=$lng&appid=$apiKey&units=metric';
+        print('DEBUG: Weather - Fetching for coordinates ($lat, $lng)...');
+      } else {
+        final String encodedLocation = Uri.encodeComponent('$location,LK');
+        url = 'https://api.openweathermap.org/data/2.5/weather?q=$encodedLocation&appid=$apiKey&units=metric';
+        print('DEBUG: Weather - Fetching for $location...');
+      }
       final response = await http.get(Uri.parse(url));
 
       if (response.statusCode == 200) {

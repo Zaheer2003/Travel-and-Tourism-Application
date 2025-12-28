@@ -491,7 +491,11 @@ class _DetailScreenState extends State<DetailScreen> {
                           
                           // Weather Widget
                           FutureBuilder<WeatherData?>(
-                            future: _weatherService.getWeather(widget.destination.name),
+                            future: _weatherService.getWeather(
+                              widget.destination.name,
+                              lat: widget.destination.lat,
+                              lng: widget.destination.lng,
+                            ),
                             builder: (context, snapshot) {
                               final weather = snapshot.data;
                               if (snapshot.connectionState == ConnectionState.waiting) {

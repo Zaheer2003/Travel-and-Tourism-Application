@@ -9,7 +9,9 @@ class DestinationCard extends StatelessWidget {
   final Destination destination;
   final FavoriteService _favoriteService = FavoriteService();
 
-  DestinationCard({super.key, required this.destination});
+  final double? width;
+
+  DestinationCard({super.key, required this.destination, this.width = 280});
 
   @override
   Widget build(BuildContext context) {
@@ -23,8 +25,8 @@ class DestinationCard extends StatelessWidget {
         );
       },
       child: Container(
-        width: 280,
-        margin: const EdgeInsets.only(right: 20),
+        width: width,
+        margin: width != null ? const EdgeInsets.only(right: 20) : EdgeInsets.zero,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(24),
           boxShadow: [
