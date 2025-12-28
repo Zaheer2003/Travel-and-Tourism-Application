@@ -25,6 +25,7 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   final DatabaseService _db = DatabaseService();
   String _searchQuery = '';
+  String _selectedCategory = '';
 
   @override
   void initState() {
@@ -268,11 +269,15 @@ class _HomeScreenState extends State<HomeScreen> {
           }
           var destinations = snapshot.data ?? [];
           
-          if (_searchQuery.isNotEmpty) {
-            destinations = destinations.where((d) => 
-              d.name.toLowerCase().contains(_searchQuery) || 
-              d.location.toLowerCase().contains(_searchQuery)
-            ).toList();
+          if (_searchQuery.isNotEmpty || _selectedCategory.isNotEmpty) {
+            destinations = destinations.where((d) {
+              final matchesSearch = _searchQuery.isEmpty || 
+                                  d.name.toLowerCase().contains(_searchQuery) || 
+                                  d.location.toLowerCase().contains(_searchQuery);
+              final matchesCategory = _selectedCategory.isEmpty || 
+                                    d.categories.contains(_selectedCategory);
+              return matchesSearch && matchesCategory;
+            }).toList();
           }
 
           if (destinations.isEmpty) {
@@ -310,13 +315,22 @@ class _HomeScreenState extends State<HomeScreen> {
             return const SizedBox(); // Hide if error
           }
           final hotels = snapshot.data ?? [];
-          if (hotels.isEmpty) return const Center(child: Text('No hotels found.'));
+          
+          var filteredHotels = hotels;
+          if (_searchQuery.isNotEmpty) {
+            filteredHotels = hotels.where((h) => 
+              h.name.toLowerCase().contains(_searchQuery) || 
+              h.location.toLowerCase().contains(_searchQuery)
+            ).toList();
+          }
+
+          if (filteredHotels.isEmpty) return const Center(child: Text('No hotels found.'));
 
           return ListView.builder(
             scrollDirection: Axis.horizontal,
             padding: const EdgeInsets.only(left: 24, right: 8),
-            itemCount: hotels.length,
-            itemBuilder: (context, index) => HotelCard(hotel: hotels[index]),
+            itemCount: filteredHotels.length,
+            itemBuilder: (context, index) => HotelCard(hotel: filteredHotels[index]),
           );
         },
       ),
@@ -342,18 +356,19 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget _buildCategoryItem(IconData icon, String label) {
     return GestureDetector(
       onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => ExploreScreen(initialCategory: label),
-          ),
-        );
+        setState(() {
+          if (_selectedCategory == label) {
+            _selectedCategory = ''; // Deselect if already selected
+          } else {
+            _selectedCategory = label;
+          }
+        });
       },
       child: Container(
         margin: const EdgeInsets.only(right: 16),
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
         decoration: BoxDecoration(
-          color: Theme.of(context).cardColor,
+          color: _selectedCategory == label ? AppTheme.primaryColor : Theme.of(context).cardColor,
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
@@ -365,13 +380,13 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
         child: Row(
           children: [
-            Icon(icon, size: 20, color: AppTheme.primaryColor),
+            Icon(icon, size: 20, color: _selectedCategory == label ? Colors.white : AppTheme.primaryColor),
             const SizedBox(width: 8),
             Text(
               label,
               style: TextStyle(
                 fontWeight: FontWeight.w600,
-                color: Theme.of(context).textTheme.bodyLarge?.color,
+                color: _selectedCategory == label ? Colors.white : Theme.of(context).textTheme.bodyLarge?.color,
               ),
             ),
           ],
