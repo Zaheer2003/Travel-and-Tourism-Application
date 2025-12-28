@@ -7,7 +7,8 @@ import 'detail_screen.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
 class ExploreScreen extends StatefulWidget {
-  const ExploreScreen({super.key});
+  final String? initialCategory;
+  const ExploreScreen({super.key, this.initialCategory});
 
   @override
   State<ExploreScreen> createState() => _ExploreScreenState();
@@ -16,7 +17,13 @@ class ExploreScreen extends StatefulWidget {
 class _ExploreScreenState extends State<ExploreScreen> {
   final DatabaseService _db = DatabaseService();
   String _searchQuery = '';
-  String _selectedCategory = 'All';
+  late String _selectedCategory;
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedCategory = widget.initialCategory ?? 'All';
+  }
 
   final List<String> _categories = [
     'All',
@@ -53,6 +60,11 @@ class _ExploreScreenState extends State<ExploreScreen> {
               padding: const EdgeInsets.all(24.0),
               child: Row(
                 children: [
+                  IconButton(
+                    icon: Icon(Icons.arrow_back, color: Theme.of(context).iconTheme.color),
+                    onPressed: () => Navigator.pop(context),
+                  ),
+                  const SizedBox(width: 8),
                   Text(
                     'Explore',
                     style: Theme.of(context).textTheme.displayLarge,
