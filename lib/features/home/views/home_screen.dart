@@ -11,6 +11,8 @@ import 'package:travel_tourism/core/widgets/skeletons/hotel_skeleton.dart';
 import 'package:travel_tourism/features/destinations/views/destination_map_screen.dart';
 import 'package:travel_tourism/features/trains/views/train_route_screen.dart';
 import 'package:travel_tourism/features/trains/models/train_route.dart';
+import 'package:travel_tourism/features/destinations/views/explore_screen.dart';
+import 'package:travel_tourism/features/hotels/views/hotel_list_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   HomeScreen({super.key});
@@ -68,7 +70,10 @@ class _HomeScreenState extends State<HomeScreen> {
                   _searchQuery.isEmpty ? 'Trending Destinations' : 'Search Results', 
                   'See all',
                   onActionTap: () {
-                     // Optional: Navigate to see all destinations
+                     Navigator.push(
+                       context,
+                       MaterialPageRoute(builder: (context) => const ExploreScreen()),
+                     );
                   },
                 ),
                 const SizedBox(height: 16),
@@ -79,7 +84,16 @@ class _HomeScreenState extends State<HomeScreen> {
                   const SizedBox(height: 16),
                   _buildTrainsList(),
                   const SizedBox(height: 32),
-                  _buildSectionTitle('Top Hotels', 'See all'),
+                  _buildSectionTitle(
+                    'Top Hotels', 
+                    'See all',
+                    onActionTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => const HotelListScreen()),
+                      );
+                    },
+                  ),
                   const SizedBox(height: 16),
                   _buildHotelsList(),
                   const SizedBox(height: 32),
