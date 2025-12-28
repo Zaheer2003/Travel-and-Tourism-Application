@@ -29,6 +29,12 @@ class OfflineService {
     await box.delete(id);
   }
 
+  static bool isFavorite(String id) {
+    if (!Hive.isBoxOpen(favoritesBoxName)) return false;
+    final box = Hive.box(favoritesBoxName);
+    return box.containsKey(id);
+  }
+
   static Future<void> cacheFavorites(List<dynamic> favorites) async {
     final box = Hive.box(favoritesBoxName);
     await box.clear();

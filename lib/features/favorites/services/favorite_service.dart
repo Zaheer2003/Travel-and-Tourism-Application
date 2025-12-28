@@ -10,31 +10,45 @@ class FavoriteService {
   // Toggle favorite: returns true if added, false if removed
   Future<bool> toggleFavorite(String destinationId, {Map<String, dynamic>? destinationData}) async {
     final user = _auth.currentUser;
+    // Allow toggle even if user is offline, but we need a user ID. If cached user exists (not handled here), good.
+    // Assuming auth is persistent.
+    
     if (user == null) return false;
 
-    final favoriteRef = _db
-        .collection('users')
-        .doc(user.uid)
-        .collection('favorites')
-        .doc(destinationId);
-
-    final doc = await favoriteRef.get();
-
-    if (doc.exists) {
-      await favoriteRef.delete();
-      // Update local cache
+    // 1. OFFLINE / LOCAL FIRST: Check local state
+    final isLocalFav = OfflineService.isFavorite(destinationId);
+    
+    if (isLocalFav) {
+      // Remove locally
       await OfflineService.removeFavorite(destinationId);
-      return false;
     } else {
-      await favoriteRef.set({
-        'destinationId': destinationId,
-        'addedAt': FieldValue.serverTimestamp(),
-      });
-      // Update local cache if data is provided
+      // Add locally
       if (destinationData != null) {
         await OfflineService.addFavorite(destinationId, destinationData);
       }
-      return true;
+    }
+
+    // 2. ONLINE SYNC: Try to update Firestore
+    try {
+      final favoriteRef = _db
+          .collection('users')
+          .doc(user.uid)
+          .collection('favorites')
+          .doc(destinationId);
+
+      if (isLocalFav) {
+        await favoriteRef.delete();
+        return false; 
+      } else {
+        await favoriteRef.set({
+          'destinationId': destinationId,
+          'addedAt': FieldValue.serverTimestamp(),
+        });
+        return true;
+      }
+    } catch (e) {
+      print('Offline Mode: Favorite toggled locally only ($e)');
+      return !isLocalFav; 
     }
   }
 
